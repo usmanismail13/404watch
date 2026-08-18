@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import "../Dashboard.css";
 
 function Dashboard() {
@@ -32,6 +33,12 @@ function Dashboard() {
       <div className="dashboard-websites">
         <h2>Monitored Websites</h2>
         <p>No websites are being monitored yet.</p>
+      </div>
+
+      <div>
+        <Link to="/billing">
+          <button type="button">Billing</button>
+        </Link>
       </div>
     </div>
   );
