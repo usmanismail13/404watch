@@ -8,6 +8,7 @@ import Website from "./pages/Website";
 import Errors404 from "./pages/Errors404";
 import Account from "./pages/Account";
 import Billing from "./pages/Billing";
+import Support from "./pages/Support";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/errors-404" element={<Errors404 />} />
         <Route path="/account" element={<Account />} />
         <Route path="/billing" element={<Billing />} />
+        <Route path="/support" element={<Support />} />
       </Routes>
     </BrowserRouter>
   );
