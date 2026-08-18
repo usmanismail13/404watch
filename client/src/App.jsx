@@ -8,6 +8,7 @@ import Error from "./components/Error";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Billing from "./pages/Billing";
+import Support from "./pages/Support";
 
 function App() {
   return (
@@ -29,7 +30,7 @@ function App() {
           <Route path="/errors" element={<h1>404 Errors</h1>} />
           <Route path="/account" element={<h1>Account</h1>} />
           <Route path="/billing" element={<Billing />} />
-          <Route path="/support" element={<h1>Support</h1>} />
+          <Route path="/support" element={<Support />} />
         </Route>
 
         <Route path="*" element={<h1>Page Not Found</h1>} />
