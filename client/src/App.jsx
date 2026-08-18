@@ -9,6 +9,7 @@ import Errors404 from "./pages/Errors404";
 import Account from "./pages/Account";
 import Billing from "./pages/Billing";
 import Support from "./pages/Support";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -24,6 +25,9 @@ function App() {
         <Route path="/account" element={<Account />} />
         <Route path="/billing" element={<Billing />} />
         <Route path="/support" element={<Support />} />
+
+        {/* 404 - Page Not Found */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
