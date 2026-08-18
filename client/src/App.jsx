@@ -3,6 +3,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Alert from "./components/Alert";
+import Loading from "./components/Loading";
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<h1>Login</h1>} />
         <Route path="/register" element={<h1>Registration</h1>} />
         <Route path="/pricing" element={<h1>Pricing</h1>} />
+        <Route path="/loading" element={<Loading />} />
 
         {/* Protected Dashboard Routes */}
         <Route element={<ProtectedRoute />}>
