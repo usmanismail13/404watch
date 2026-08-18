@@ -6,6 +6,7 @@ import Pricing from "./pages/Pricing";
 import Dashboard from "./pages/Dashboard";
 import Website from "./pages/Website";
 import Errors404 from "./pages/Errors404";
+import Account from "./pages/Account";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/website" element={<Website />} />
         <Route path="/errors-404" element={<Errors404 />} />
+        <Route path="/account" element={<Account />} />
       </Routes>
     </BrowserRouter>
   );
