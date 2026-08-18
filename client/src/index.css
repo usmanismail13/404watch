@@ -126,6 +126,14 @@ body {
   max-width: 100%;
 }
 
+/* Dashboard */
+.dashboard {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
 /* Tablet */
 @media (max-width: 768px) {
   .landing-page {
@@ -138,6 +146,10 @@ body {
 
   .landing-description {
     font-size: 18px;
+  }
+
+  .dashboard {
+    padding: 24px 16px;
   }
 }
 
@@ -174,5 +186,9 @@ body {
 
   .register-page input {
     font-size: 16px;
+  }
+
+  .dashboard {
+    padding: 16px 12px;
   }
 }
