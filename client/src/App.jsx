@@ -1,33 +1,20 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import LandingPage from "./pages/LandingPage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Pricing from "./pages/Pricing";
-import Dashboard from "./pages/Dashboard";
-import Website from "./pages/Website";
-import Errors404 from "./pages/Errors404";
-import Account from "./pages/Account";
-import Billing from "./pages/Billing";
-import Support from "./pages/Support";
-import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/website" element={<Website />} />
-        <Route path="/errors-404" element={<Errors404 />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/billing" element={<Billing />} />
-        <Route path="/support" element={<Support />} />
-
-        {/* 404 - Page Not Found */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="/" element={<h1>404Watch Home</h1>} />
+        <Route path="/login" element={<h1>Login</h1>} />
+        <Route path="/register" element={<h1>Registration</h1>} />
+        <Route path="/pricing" element={<h1>Pricing</h1>} />
+        <Route path="/dashboard" element={<h1>Dashboard</h1>} />
+        <Route path="/website" element={<h1>Website</h1>} />
+        <Route path="/errors" element={<h1>404 Errors</h1>} />
+        <Route path="/account" element={<h1>Account</h1>} />
+        <Route path="/billing" element={<h1>Billing</h1>} />
+        <Route path="/support" element={<h1>Support</h1>} />
+        <Route path="*" element={<h1>Page Not Found</h1>} />
       </Routes>
     </BrowserRouter>
   );
