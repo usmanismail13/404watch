@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Alert from "./components/Alert";
 import Loading from "./components/Loading";
+import Error from "./components/Error";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/register" element={<h1>Registration</h1>} />
         <Route path="/pricing" element={<h1>Pricing</h1>} />
         <Route path="/loading" element={<Loading />} />
+        <Route path="/error" element={<Error />} />
 
         {/* Protected Dashboard Routes */}
         <Route element={<ProtectedRoute />}>
