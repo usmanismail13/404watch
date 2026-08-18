@@ -12,7 +12,7 @@ function Login() {
   };
 
   return (
-    <main>
+    <main className="login-page">
       <section className="login-section">
         <div className="login-container">
           <h1 className="login-title">Login</h1>

@@ -12,6 +12,8 @@ body {
 body {
   font-family: Arial, sans-serif;
 }
+
+/* Support Page */
 .support-page {
   max-width: 600px;
   margin: 60px auto;
@@ -43,6 +45,7 @@ body {
   padding: 12px;
   cursor: pointer;
 }
+
 .support-success {
   margin-top: 10px;
   padding: 12px;
@@ -50,6 +53,8 @@ body {
   background: #e8f5e9;
   color: #2e7d32;
 }
+
+/* Alert */
 .alert {
   padding: 12px 16px;
   border-radius: 6px;
@@ -64,4 +69,110 @@ body {
 .alert-success {
   background: #dcfce7;
   color: #166534;
+}
+
+/* Landing Page */
+.landing-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.landing-title {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.landing-description {
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+/* Authentication Pages */
+.login-page,
+.register-page {
+  width: 100%;
+  max-width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+/* Login Form */
+.login-form {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.login-input {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Register Form */
+.register-page {
+  width: 100%;
+}
+
+.register-page form {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.register-page input {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+  .landing-page {
+    padding: 60px 20px;
+  }
+
+  .landing-title {
+    font-size: 36px;
+  }
+
+  .landing-description {
+    font-size: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .landing-page {
+    padding: 40px 16px;
+  }
+
+  .landing-title {
+    font-size: 30px;
+  }
+
+  .landing-description {
+    font-size: 16px;
+  }
+
+  .login-page,
+  .register-page {
+    padding: 12px;
+  }
+
+  .login-form {
+    max-width: 100%;
+  }
+
+  .login-input {
+    font-size: 16px;
+  }
+
+  .register-page form {
+    max-width: 100%;
+  }
+
+  .register-page input {
+    font-size: 16px;
+  }
 }
