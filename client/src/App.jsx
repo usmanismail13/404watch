@@ -7,6 +7,7 @@ import Loading from "./components/Loading";
 import Error from "./components/Error";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Billing from "./pages/Billing";
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
           <Route path="/website" element={<h1>Website</h1>} />
           <Route path="/errors" element={<h1>404 Errors</h1>} />
           <Route path="/account" element={<h1>Account</h1>} />
-          <Route path="/billing" element={<h1>Billing</h1>} />
+          <Route path="/billing" element={<Billing />} />
           <Route path="/support" element={<h1>Support</h1>} />
         </Route>
 

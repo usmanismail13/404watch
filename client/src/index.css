@@ -192,3 +192,24 @@ body {
     padding: 16px 12px;
   }
 }
+
+/* Billing Page */
+.billing-page {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Billing Mobile */
+@media (max-width: 768px) {
+  .billing-page {
+    padding: 24px 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .billing-page {
+    padding: 16px 12px;
+  }
+}

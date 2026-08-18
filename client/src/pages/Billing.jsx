@@ -10,7 +10,7 @@ function Billing() {
         <p>$10/month</p>
         <p>Manage your 404Watch subscription and billing.</p>
 
-<button type="button">Manage Subscription</button>
+        <button type="button">Manage Subscription</button>
       </div>
     </div>
   );
