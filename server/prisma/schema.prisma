@@ -16,6 +16,8 @@ model User {
   websites       Website[]
   subscription   Subscription?
   supportTickets SupportTicket[]
+
+  @@index([createdAt])
 }
 
 model Website {
@@ -27,6 +29,8 @@ model Website {
   updatedAt DateTime   @updatedAt
   errors    Error404[]
   scans     Scan[]
+
+  @@index([userId])
 }
 
 model Error404 {
@@ -39,6 +43,9 @@ model Error404 {
   detectedAt DateTime @default(now())
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([websiteId])
+  @@index([status])
 }
 
 model Scan {
@@ -48,6 +55,9 @@ model Scan {
   status      String
   startedAt   DateTime  @default(now())
   completedAt DateTime?
+
+  @@index([websiteId])
+  @@index([status])
 }
 
 model Subscription {
@@ -57,6 +67,8 @@ model Subscription {
   status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([status])
 }
 
 model SupportTicket {
@@ -68,4 +80,7 @@ model SupportTicket {
   status    String   @default("open")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([status])
 }
