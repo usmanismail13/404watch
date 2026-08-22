@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const prisma = require("../lib/prisma");
 const generateToken = require("../utils/generateToken");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -98,6 +99,36 @@ router.post("/login", async (req, res) => {
 
     res.status(500).json({
       message: "Login failed",
+    });
+  }
+});
+
+router.get("/me", authMiddleware, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user.userId,
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json({
+      user,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to get current user",
     });
   }
 });
