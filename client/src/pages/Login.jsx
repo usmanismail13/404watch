@@ -1,14 +1,27 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import api from "../api";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    setMessage("Login submitted successfully.");
+
+    try {
+      const response = await api.post("/api/auth/login", {
+        email,
+        password,
+      });
+
+      setMessage(response.data.message);
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message || "Login failed."
+      );
+    }
   };
 
   return (
