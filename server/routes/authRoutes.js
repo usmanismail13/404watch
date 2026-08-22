@@ -6,6 +6,12 @@ const router = express.Router();
 router.post("/register", async (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !email.includes("@")) {
+    return res.status(400).json({
+      message: "Invalid email address",
+    });
+  }
+
   try {
     const user = await prisma.user.create({
       data: {
@@ -22,6 +28,8 @@ router.post("/register", async (req, res) => {
       },
     });
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       message: "Registration failed",
     });
