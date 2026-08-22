@@ -1,8 +1,11 @@
 const sequelize = require("../config/database");
+const bcrypt = require("bcrypt");
 
 const register = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await sequelize.query(
       `INSERT INTO "User" ("email", "password", "createdAt", "updatedAt")
@@ -11,7 +14,7 @@ const register = async (req, res) => {
       {
         replacements: {
           email,
-          password,
+          password: hashedPassword,
         },
       }
     );
@@ -36,7 +39,7 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
   try {
-    const { email } = req.body;
+    const { email, password } = req.body;
 
     const [result] = await sequelize.query(
       `SELECT "id", "email", "password"
@@ -58,12 +61,19 @@ const login = async (req, res) => {
       });
     }
 
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
     res.status(200).json({
-      message: "User found successfully",
+      message: "Password verified successfully",
       user: {
         id: user.id,
         email: user.email,
-        password: user.password,
       },
     });
   } catch (error) {
