@@ -1,3 +1,4 @@
+const generateToken = require("../utils/generateToken");
 const sequelize = require("../config/database");
 const bcrypt = require("bcrypt");
 
@@ -69,8 +70,11 @@ const login = async (req, res) => {
       });
     }
 
+    const token = generateToken(user.id);
+
     res.status(200).json({
-      message: "Password verified successfully",
+      message: "Login successful",
+      token,
       user: {
         id: user.id,
         email: user.email,
