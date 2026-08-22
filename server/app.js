@@ -23,4 +23,13 @@ app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
 });
 
+const authMiddleware = require("./middleware/authMiddleware");
+
+app.get("/api/protected", authMiddleware, (req, res) => {
+  res.status(200).json({
+    message: "You are authenticated",
+    user: req.user,
+  });
+});
+
 module.exports = app;
