@@ -34,6 +34,48 @@ const register = async (req, res) => {
   }
 };
 
+const login = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const [result] = await sequelize.query(
+      `SELECT "id", "email", "password"
+       FROM "User"
+       WHERE "email" = :email
+       LIMIT 1`,
+      {
+        replacements: {
+          email,
+        },
+      }
+    );
+
+    const user = result[0];
+
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    res.status(200).json({
+      message: "User found successfully",
+      user: {
+        id: user.id,
+        email: user.email,
+        password: user.password,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to login",
+    });
+  }
+};
+
 module.exports = {
   register,
+  login,
 };
