@@ -96,7 +96,29 @@ const login = async (req, res) => {
   }
 };
 
+const logout = async (req, res) => {
+  try {
+    res
+      .status(200)
+      .clearCookie("token", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+      })
+      .json({
+        message: "Logout successful",
+      });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to logout",
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
+  logout,
 };

@@ -133,4 +133,17 @@ router.get("/me", authMiddleware, async (req, res) => {
   }
 });
 
+router.post("/logout", (req, res) => {
+  res
+    .status(200)
+    .clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    })
+    .json({
+      message: "Logout successful",
+    });
+});
+
 module.exports = router;
