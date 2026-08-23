@@ -1,17 +1,16 @@
+import { Link } from "react-router-dom";
+import api from "../api";
+import { useAuth } from "../context/AuthContext";
 import "../Navbar.css";
-import axios from "axios";
 
 function Navbar() {
+  const { isAuthenticated, setIsAuthenticated } = useAuth();
+
   const handleLogout = async () => {
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/logout",
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      await api.post("/api/auth/logout");
 
+      setIsAuthenticated(false);
       window.location.href = "/login";
     } catch (error) {
       console.error("Logout failed:", error);
@@ -23,12 +22,22 @@ function Navbar() {
       <h2>404Watch</h2>
 
       <div>
-        <a href="/">Home</a>
-        <a href="/pricing">Pricing</a>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
-        <a href="/dashboard">Dashboard</a>
-        <button onClick={handleLogout}>Logout</button>
+        <Link to="/">Home</Link>
+        <Link to="/pricing">Pricing</Link>
+
+        {isAuthenticated === false && (
+          <>
+            <Link to="/login">Login</Link>
+            <Link to="/register">Register</Link>
+          </>
+        )}
+
+        {isAuthenticated === true && (
+          <>
+            <Link to="/dashboard">Dashboard</Link>
+            <button onClick={handleLogout}>Logout</button>
+          </>
+        )}
       </div>
     </nav>
   );

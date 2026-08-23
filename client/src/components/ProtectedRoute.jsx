@@ -1,25 +1,8 @@
-import { useEffect, useState } from "react";
 import { Navigate, Outlet } from "react-router-dom";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext";
 
 const ProtectedRoute = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(null);
-
-  useEffect(() => {
-    const checkAuthentication = async () => {
-      try {
-        await axios.get("http://localhost:5000/api/auth/me", {
-          withCredentials: true,
-        });
-
-        setIsAuthenticated(true);
-      } catch (error) {
-        setIsAuthenticated(false);
-      }
-    };
-
-    checkAuthentication();
-  }, []);
+  const { isAuthenticated } = useAuth();
 
   if (isAuthenticated === null) {
     return <div>Checking authentication...</div>;

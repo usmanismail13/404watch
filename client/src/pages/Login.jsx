@@ -1,11 +1,15 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
+
+  const navigate = useNavigate();
+  const { setIsAuthenticated } = useAuth();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -16,7 +20,10 @@ function Login() {
         password,
       });
 
+      setIsAuthenticated(true);
       setMessage(response.data.message);
+
+      navigate("/dashboard");
     } catch (error) {
       setMessage(
         error.response?.data?.message || "Login failed."

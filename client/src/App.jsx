@@ -9,8 +9,15 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Billing from "./pages/Billing";
 import Support from "./pages/Support";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
+  const { isAuthenticated } = useAuth();
+
+  if (isAuthenticated === null) {
+    return <Loading />;
+  }
+
   return (
     <BrowserRouter>
       <Navbar />
