@@ -5,10 +5,18 @@ import Footer from "./components/Footer";
 import Alert from "./components/Alert";
 import Loading from "./components/Loading";
 import Error from "./components/Error";
+
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Pricing from "./pages/Pricing";
 import Dashboard from "./pages/Dashboard";
+import Website from "./pages/Website";
+import Errors404 from "./pages/Errors404";
+import Account from "./pages/Account";
 import Billing from "./pages/Billing";
 import Support from "./pages/Support";
+
 import { useAuth } from "./context/AuthContext";
 
 function App() {
@@ -23,19 +31,19 @@ function App() {
       <Navbar />
 
       <Routes>
-        <Route path="/" element={<h1>404Watch Home</h1>} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<h1>Registration</h1>} />
-        <Route path="/pricing" element={<h1>Pricing</h1>} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/pricing" element={<Pricing />} />
         <Route path="/loading" element={<Loading />} />
         <Route path="/error" element={<Error />} />
 
         {/* Protected Dashboard Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/website" element={<h1>Website</h1>} />
-          <Route path="/errors" element={<h1>404 Errors</h1>} />
-          <Route path="/account" element={<h1>Account</h1>} />
+          <Route path="/website" element={<Website />} />
+          <Route path="/errors" element={<Errors404 />} />
+          <Route path="/account" element={<Account />} />
           <Route path="/billing" element={<Billing />} />
           <Route path="/support" element={<Support />} />
         </Route>
