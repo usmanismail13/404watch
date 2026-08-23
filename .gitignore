@@ -2,3 +2,7 @@ node_modules
 .env
 dist
 build
+# Local AI/tooling files
+server/.agents/
+server/.claude/
+server/.windsurf/
