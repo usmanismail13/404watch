@@ -17,9 +17,13 @@ app.use(cookieParser());
 
 const authRoutes = require("./routes/authRoutes");
 const websiteRoutes = require("./routes/websiteRoutes");
+const errorRoutes = require("./routes/errorRoutes");
+const scanRoutes = require("./routes/scanRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/websites", websiteRoutes);
+app.use("/api/errors", errorRoutes);
+app.use("/api/scans", scanRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });

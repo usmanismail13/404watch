@@ -37,7 +37,10 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+
             <Route path="/website" element={<Website />} />
+            <Route path="/website/:id" element={<Website />} />
+
             <Route path="/errors" element={<Errors404 />} />
             <Route path="/account" element={<Account />} />
             <Route path="/billing" element={<Billing />} />
