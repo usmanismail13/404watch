@@ -176,12 +176,19 @@ function Dashboard() {
                 <div>
                   <h3>{website.url}</h3>
 
-                  <p>
-                    Monitoring:{" "}
+                  <span
+                    className={
+                      website.monitoringEnabled
+                        ? "monitoring-status monitoring-status-enabled"
+                        : "monitoring-status monitoring-status-disabled"
+                    }
+                  >
+                    <span className="monitoring-status-dot"></span>
+
                     {website.monitoringEnabled
-                      ? "Enabled"
-                      : "Disabled"}
-                  </p>
+                      ? "Monitoring Enabled"
+                      : "Monitoring Disabled"}
+                  </span>
                 </div>
 
                 <Link to={`/website/${website.id}`}>

@@ -48,7 +48,7 @@
 }
 
 .website-item h3 {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   word-break: break-word;
 }
 
@@ -59,6 +59,33 @@
 
 .website-item a {
   white-space: nowrap;
+}
+
+.monitoring-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.monitoring-status-enabled {
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.monitoring-status-disabled {
+  color: #991b1b;
+  background-color: #fee2e2;
+}
+
+.monitoring-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
 }
 
 .dashboard button {
