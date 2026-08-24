@@ -153,6 +153,51 @@ router.patch("/:id/monitoring", authMiddleware, async (req, res) => {
   }
 });
 
+router.patch("/:id/monitoring/resume", authMiddleware, async (req, res) => {
+  const websiteId = Number(req.params.id);
+
+  if (!Number.isInteger(websiteId)) {
+    return res.status(400).json({
+      message: "Invalid website ID",
+    });
+  }
+
+  try {
+    const website = await prisma.website.findFirst({
+      where: {
+        id: websiteId,
+        userId: req.user.userId,
+      },
+    });
+
+    if (!website) {
+      return res.status(404).json({
+        message: "Website not found",
+      });
+    }
+
+    const updatedWebsite = await prisma.website.update({
+      where: {
+        id: websiteId,
+      },
+      data: {
+        monitoringEnabled: true,
+      },
+    });
+
+    res.status(200).json({
+      message: "Monitoring resumed successfully",
+      website: updatedWebsite,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to resume monitoring",
+    });
+  }
+});
+
 router.delete("/:id", authMiddleware, async (req, res) => {
   const websiteId = Number(req.params.id);
 
