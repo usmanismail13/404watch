@@ -6,7 +6,9 @@ function validateUrl(value) {
       return false;
     }
 
-    return true;
+    url.pathname = url.pathname.replace(/\/+$/, "") || "/";
+
+    return url.toString();
   } catch {
     return false;
   }

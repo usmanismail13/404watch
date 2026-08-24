@@ -14,7 +14,9 @@ router.post("/", authMiddleware, async (req, res) => {
     });
   }
 
-  if (!validateUrl(url)) {
+  const normalizedUrl = validateUrl(url);
+
+  if (!normalizedUrl) {
     return res.status(400).json({
       message: "Invalid website URL",
     });
@@ -24,7 +26,7 @@ router.post("/", authMiddleware, async (req, res) => {
     const website = await prisma.website.create({
       data: {
         userId: req.user.userId,
-        url,
+        url: normalizedUrl,
       },
     });
 
