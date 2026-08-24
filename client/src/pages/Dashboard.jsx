@@ -95,6 +95,44 @@ function Dashboard() {
     await fetchDashboard();
   };
 
+  const handleDeleteWebsite = async (websiteId) => {
+    const website = websites.find(
+      (currentWebsite) => currentWebsite.id === websiteId
+    );
+
+    if (!website) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete ${website.url}?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setError("");
+      setScanMessage("");
+
+      await api.delete(`/api/websites/${websiteId}`);
+
+      setWebsites((currentWebsites) =>
+        currentWebsites.filter(
+          (currentWebsite) => currentWebsite.id !== websiteId
+        )
+      );
+
+      setScanMessage("Website deleted successfully.");
+    } catch (err) {
+      setError(
+        err.response?.data?.message ||
+          "Failed to delete website"
+      );
+    }
+  };
+
   return (
     <div className="dashboard">
       <div className="dashboard-header">
@@ -191,9 +229,20 @@ function Dashboard() {
                   </span>
                 </div>
 
-                <Link to={`/website/${website.id}`}>
-                  View Website
-                </Link>
+                <div className="website-actions">
+                  <Link to={`/website/${website.id}`}>
+                    View Website
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDeleteWebsite(website.id)
+                    }
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
             ))}
           </div>
