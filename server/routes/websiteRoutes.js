@@ -1,6 +1,7 @@
 const express = require("express");
 const prisma = require("../lib/prisma");
 const authMiddleware = require("../middleware/authMiddleware");
+const validateUrl = require("../utils/validateUrl");
 
 const router = express.Router();
 
@@ -10,6 +11,12 @@ router.post("/", authMiddleware, async (req, res) => {
   if (!url) {
     return res.status(400).json({
       message: "Website URL is required",
+    });
+  }
+
+  if (!validateUrl(url)) {
+    return res.status(400).json({
+      message: "Invalid website URL",
     });
   }
 
