@@ -167,17 +167,22 @@ function Dashboard() {
         ) : websites.length === 0 ? (
           <p>No websites are being monitored yet.</p>
         ) : (
-          <div>
+          <div className="website-list">
             {websites.map((website) => (
-              <div key={website.id}>
-                <h3>{website.url}</h3>
+              <div
+                className="website-item"
+                key={website.id}
+              >
+                <div>
+                  <h3>{website.url}</h3>
 
-                <p>
-                  Monitoring:{" "}
-                  {website.monitoringEnabled
-                    ? "Enabled"
-                    : "Disabled"}
-                </p>
+                  <p>
+                    Monitoring:{" "}
+                    {website.monitoringEnabled
+                      ? "Enabled"
+                      : "Disabled"}
+                  </p>
+                </div>
 
                 <Link to={`/website/${website.id}`}>
                   View Website
