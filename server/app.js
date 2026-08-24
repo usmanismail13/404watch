@@ -16,8 +16,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 const authRoutes = require("./routes/authRoutes");
+const websiteRoutes = require("./routes/websiteRoutes");
 
 app.use("/api/auth", authRoutes);
+app.use("/api/websites", websiteRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
