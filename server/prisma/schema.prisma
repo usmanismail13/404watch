@@ -21,14 +21,15 @@ model User {
 }
 
 model Website {
-  id        Int        @id @default(autoincrement())
-  userId    Int
-  user      User       @relation(fields: [userId], references: [id])
-  url       String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  errors    Error404[]
-  scans     Scan[]
+  id               Int        @id @default(autoincrement())
+  userId           Int
+  user             User       @relation(fields: [userId], references: [id])
+  url              String
+  monitoringEnabled Boolean    @default(true)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  errors           Error404[]
+  scans            Scan[]
 
   @@index([userId])
 }
@@ -50,7 +51,7 @@ model Error404 {
 
 model Scan {
   id          Int       @id @default(autoincrement())
-  websiteId   Int
+  websiteId  Int
   website     Website   @relation(fields: [websiteId], references: [id])
   status      String
   startedAt   DateTime  @default(now())
