@@ -43,4 +43,27 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const websites = await prisma.website.findMany({
+      where: {
+        userId: req.user.userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    res.status(200).json({
+      websites,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to fetch websites",
+    });
+  }
+});
+
 module.exports = router;
