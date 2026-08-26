@@ -1,8 +1,10 @@
 require("dotenv").config();
 
-const axios = require("axios");
 const { PrismaClient } = require("../server/generated/prisma/client.ts");
 const { PrismaPg } = require("@prisma/adapter-pg");
+
+const { createCrawler } = require("./services/crawler");
+const { extractLinks } = require("./services/linkExtractor");
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
@@ -15,11 +17,11 @@ const interval =
 
 let running = false;
 
-async function recordError(website, status) {
+async function recordError(website, brokenUrl, sourceUrl, status) {
   const existingError = await prisma.error404.findFirst({
     where: {
       websiteId: website.id,
-      url: website.url,
+      url: brokenUrl,
       status,
     },
     orderBy: {
@@ -29,7 +31,7 @@ async function recordError(website, status) {
 
   if (existingError) {
     console.log(
-      `Existing ${status} error found for ${website.url}. Skipping duplicate.`
+      `Existing ${status} error found for ${brokenUrl}. Skipping duplicate.`
     );
     return;
   }
@@ -37,43 +39,118 @@ async function recordError(website, status) {
   await prisma.error404.create({
     data: {
       websiteId: website.id,
-      url: website.url,
-      sourceUrl: website.url,
+      url: brokenUrl,
+      sourceUrl,
       status,
     },
   });
 
-  console.log(`${status} recorded: ${website.url}`);
+  console.log(
+    `${status} recorded: ${brokenUrl} (source: ${sourceUrl})`
+  );
 }
 
 async function checkWebsite(website) {
   console.log(`Checking ${website.url}`);
 
-  try {
-    const response = await axios.get(website.url, {
-      timeout: 10000,
-      maxRedirects: 5,
-      validateStatus: () => true,
-    });
+  const crawler = createCrawler(website.url);
 
-    console.log(`${website.url} -> ${response.status}`);
+  while (!crawler.isQueueEmpty()) {
+    const currentUrl = crawler.dequeueUrl();
 
-    if (response.status === 404) {
-      await recordError(website, "404");
+    if (!currentUrl) {
+      continue;
     }
-  } catch (error) {
-    console.error(
-      `Failed to check ${website.url}:`,
-      error.message
-    );
 
-    await recordError(website, "ERROR");
+    try {
+      const result = await crawler.checkUrlFor404(
+        currentUrl,
+        website.url
+      );
+
+      if (!result) {
+        continue;
+      }
+
+      console.log(
+        `${result.brokenUrl} -> ${result.statusCode}`
+      );
+
+      if (result.is404) {
+        await recordError(
+          website,
+          result.brokenUrl,
+          result.sourceUrl,
+          "404"
+        );
+
+        continue;
+      }
+
+      if (result.html) {
+        const links = extractLinks(
+          result.html,
+          result.brokenUrl
+        );
+
+        for (const link of links) {
+          try {
+            const linkResult = await crawler.checkUrlFor404(
+              link,
+              result.brokenUrl
+            );
+
+            if (!linkResult) {
+              continue;
+            }
+
+            console.log(
+              `${linkResult.brokenUrl} -> ${linkResult.statusCode}`
+            );
+
+            if (linkResult.is404) {
+              await recordError(
+                website,
+                linkResult.brokenUrl,
+                result.brokenUrl,
+                "404"
+              );
+            } else {
+              crawler.enqueueUrl(link);
+
+              if (linkResult.html) {
+                const nestedLinks = extractLinks(
+                  linkResult.html,
+                  linkResult.brokenUrl
+                );
+
+                for (const nestedLink of nestedLinks) {
+                  crawler.enqueueUrl(nestedLink);
+                }
+              }
+            }
+          } catch (error) {
+            console.error(
+              `Failed to check link ${link}:`,
+              error.message
+            );
+          }
+        }
+      }
+    } catch (error) {
+      console.error(
+        `Failed to check ${currentUrl}:`,
+        error.message
+      );
+    }
   }
 }
 
 async function runMonitoringCycle() {
   if (running) {
-    console.log("Previous cycle is still running. Skipping.");
+    console.log(
+      "Previous cycle is still running. Skipping."
+    );
     return;
   }
 
@@ -96,19 +173,30 @@ async function runMonitoringCycle() {
 
     console.log("=== Monitoring cycle completed ===\n");
   } catch (error) {
-    console.error("Monitoring cycle failed:", error);
+    console.error(
+      "Monitoring cycle failed:",
+      error
+    );
   } finally {
     running = false;
   }
 }
 
 async function startWorker() {
-  console.log("404Watch Monitoring Worker started");
-  console.log(`Interval: ${interval / 1000} seconds`);
+  console.log(
+    "404Watch Monitoring Worker started"
+  );
+
+  console.log(
+    `Interval: ${interval / 1000} seconds`
+  );
 
   await runMonitoringCycle();
 
-  setInterval(runMonitoringCycle, interval);
+  setInterval(
+    runMonitoringCycle,
+    interval
+  );
 }
 
 async function shutdown() {
@@ -123,7 +211,10 @@ process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
 
 startWorker().catch(async (error) => {
-  console.error("Worker startup failed:", error);
+  console.error(
+    "Worker startup failed:",
+    error
+  );
 
   await prisma["$disconnect"]();
 

@@ -108,7 +108,7 @@ function createCrawler(startUrl) {
     return response.statusCode === 404;
   }
 
-  async function checkUrlFor404(url) {
+  async function checkUrlFor404(url, sourceUrl) {
     const result = await requestUrl(url);
 
     if (!result) {
@@ -117,7 +117,9 @@ function createCrawler(startUrl) {
 
     return {
       brokenUrl: result.url,
+      sourceUrl: sourceUrl || null,
       statusCode: result.statusCode,
+      html: result.html,
       is404: isNotFoundResponse(result),
     };
   }
