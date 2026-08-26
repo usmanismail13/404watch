@@ -23,6 +23,7 @@ function normalizeUrl(url, baseUrl) {
   }
 }
 
+// POST /api/scans/:websiteId
 router.post("/:websiteId", authMiddleware, async (req, res) => {
   const websiteId = Number(req.params.websiteId);
 
@@ -189,6 +190,51 @@ router.post("/:websiteId", authMiddleware, async (req, res) => {
 
     res.status(500).json({
       message: "Failed to scan website",
+    });
+  }
+});
+
+// GET /api/scans/:websiteId
+router.get("/:websiteId", authMiddleware, async (req, res) => {
+  const websiteId = Number(req.params.websiteId);
+
+  if (!Number.isInteger(websiteId)) {
+    return res.status(400).json({
+      message: "Invalid website ID",
+    });
+  }
+
+  try {
+    const website = await prisma.website.findFirst({
+      where: {
+        id: websiteId,
+        userId: req.user.userId,
+      },
+    });
+
+    if (!website) {
+      return res.status(404).json({
+        message: "Website not found",
+      });
+    }
+
+    const scans = await prisma.scan.findMany({
+      where: {
+        websiteId: website.id,
+      },
+      orderBy: {
+        startedAt: "desc",
+      },
+    });
+
+    res.status(200).json({
+      scans,
+    });
+  } catch (error) {
+    console.error("Get scans error:", error);
+
+    res.status(500).json({
+      message: "Failed to get scans",
     });
   }
 });
