@@ -116,6 +116,52 @@ function createCrawler(startUrl, websiteId, prisma) {
     return response.statusCode === 404;
   }
 
+  function isSuccessfulResponse(response) {
+    if (!response || typeof response.statusCode !== "number") {
+      return false;
+    }
+
+    return response.statusCode >= 200 && response.statusCode < 300;
+  }
+
+  async function findActive404(url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!normalizedUrl) {
+      return null;
+    }
+
+    return prisma.error404.findFirst({
+      where: {
+        websiteId,
+        url: normalizedUrl,
+        status: "active",
+      },
+    });
+  }
+
+  async function detectRecoveredUrl(url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!normalizedUrl) {
+      return null;
+    }
+
+    const existing404 = await findActive404(normalizedUrl);
+
+    if (!existing404) {
+      return null;
+    }
+
+    return {
+      errorId: existing404.id,
+      url: existing404.url,
+      websiteId: existing404.websiteId,
+      status: existing404.status,
+      recovered: true,
+    };
+  }
+
   async function checkUrlFor404(url, sourceUrl) {
     const result = await requestUrl(url);
 
@@ -125,12 +171,31 @@ function createCrawler(startUrl, websiteId, prisma) {
 
     const is404 = isNotFoundResponse(result);
 
+    let existing404 = null;
+    let recovery = null;
+
+    if (isSuccessfulResponse(result)) {
+      existing404 = await findActive404(result.url);
+
+      if (existing404) {
+        recovery = {
+          errorId: existing404.id,
+          url: existing404.url,
+          websiteId: existing404.websiteId,
+          status: existing404.status,
+          recovered: true,
+        };
+      }
+    }
+
     return {
       brokenUrl: result.url,
       sourceUrl: sourceUrl || null,
       statusCode: result.statusCode,
       html: result.html,
       is404,
+      existing404,
+      recovery,
     };
   }
 
@@ -151,6 +216,9 @@ function createCrawler(startUrl, websiteId, prisma) {
     requestUrl,
     requestUrlWithStatus,
     isNotFoundResponse,
+    isSuccessfulResponse,
+    findActive404,
+    detectRecoveredUrl,
     checkUrlFor404,
     getVisitedUrls,
   };
