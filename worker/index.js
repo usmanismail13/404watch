@@ -17,7 +17,12 @@ const interval =
 
 let running = false;
 
-async function recordError(website, brokenUrl, sourceUrl, status) {
+async function recordError(
+  website,
+  brokenUrl,
+  sourceUrl,
+  status
+) {
   const existingError = await prisma.error404.findFirst({
     where: {
       websiteId: website.id,
@@ -64,7 +69,6 @@ async function recordError(website, brokenUrl, sourceUrl, status) {
 async function checkWebsite(website) {
   console.log(`Checking ${website.url}`);
 
-  // Create a scan record when the website scan starts
   const scan = await prisma.scan.create({
     data: {
       websiteId: website.id,
@@ -72,118 +76,148 @@ async function checkWebsite(website) {
     },
   });
 
-  console.log(`Scan ${scan.id} started for ${website.url}`);
-
-  const crawler = createCrawler(
-    website.url,
-    website.id,
-    prisma
+  console.log(
+    `Scan ${scan.id} started for ${website.url}`
   );
 
-  while (!crawler.isQueueEmpty()) {
-    const currentUrl = crawler.dequeueUrl();
+  try {
+    const crawler = createCrawler(
+      website.url,
+      website.id,
+      prisma
+    );
 
-    if (!currentUrl) {
-      continue;
-    }
+    while (!crawler.isQueueEmpty()) {
+      const currentUrl = crawler.dequeueUrl();
 
-    try {
-      const result = await crawler.checkUrlFor404(
-        currentUrl,
-        website.url
-      );
-
-      if (!result) {
+      if (!currentUrl) {
         continue;
       }
 
-      console.log(
-        `${result.brokenUrl} -> ${result.statusCode}`
-      );
-
-      if (result.is404) {
-        await recordError(
-          website,
-          result.brokenUrl,
-          result.sourceUrl,
-          "404"
+      try {
+        const result = await crawler.checkUrlFor404(
+          currentUrl,
+          website.url
         );
 
-        continue;
-      }
+        if (!result) {
+          continue;
+        }
 
-      if (result.html) {
-        const links = extractLinks(
-          result.html,
-          result.brokenUrl
+        console.log(
+          `${result.brokenUrl} -> ${result.statusCode}`
         );
 
-        for (const link of links) {
-          try {
-            const linkResult = await crawler.checkUrlFor404(
-              link,
-              result.brokenUrl
-            );
+        if (result.is404) {
+          await recordError(
+            website,
+            result.brokenUrl,
+            result.sourceUrl,
+            "404"
+          );
 
-            if (!linkResult) {
-              continue;
-            }
+          continue;
+        }
 
-            console.log(
-              `${linkResult.brokenUrl} -> ${linkResult.statusCode}`
-            );
+        if (result.html) {
+          const links = extractLinks(
+            result.html,
+            result.brokenUrl
+          );
 
-            if (linkResult.is404) {
-              await recordError(
-                website,
-                linkResult.brokenUrl,
-                result.brokenUrl,
-                "404"
-              );
-            } else {
-              crawler.enqueueUrl(link);
-
-              if (linkResult.html) {
-                const nestedLinks = extractLinks(
-                  linkResult.html,
-                  linkResult.brokenUrl
+          for (const link of links) {
+            try {
+              const linkResult =
+                await crawler.checkUrlFor404(
+                  link,
+                  result.brokenUrl
                 );
 
-                for (const nestedLink of nestedLinks) {
-                  crawler.enqueueUrl(nestedLink);
+              if (!linkResult) {
+                continue;
+              }
+
+              console.log(
+                `${linkResult.brokenUrl} -> ${linkResult.statusCode}`
+              );
+
+              if (linkResult.is404) {
+                await recordError(
+                  website,
+                  linkResult.brokenUrl,
+                  result.brokenUrl,
+                  "404"
+                );
+              } else {
+                crawler.enqueueUrl(link);
+
+                if (linkResult.html) {
+                  const nestedLinks = extractLinks(
+                    linkResult.html,
+                    linkResult.brokenUrl
+                  );
+
+                  for (const nestedLink of nestedLinks) {
+                    crawler.enqueueUrl(nestedLink);
+                  }
                 }
               }
+            } catch (error) {
+              console.error(
+                `Failed to check link ${link}:`,
+                error.message
+              );
             }
-          } catch (error) {
-            console.error(
-              `Failed to check link ${link}:`,
-              error.message
-            );
           }
         }
+      } catch (error) {
+        console.error(
+          `Failed to check ${currentUrl}:`,
+          error.message
+        );
       }
-    } catch (error) {
+    }
+
+    await prisma.scan.update({
+      where: {
+        id: scan.id,
+      },
+      data: {
+        status: "completed",
+        completedAt: new Date(),
+      },
+    });
+
+    console.log(
+      `Scan ${scan.id} completed for ${website.url}`
+    );
+  } catch (error) {
+    console.error(
+      `Scan ${scan.id} failed for ${website.url}:`,
+      error.message
+    );
+
+    try {
+      await prisma.scan.update({
+        where: {
+          id: scan.id,
+        },
+        data: {
+          status: "failed",
+          completedAt: new Date(),
+        },
+      });
+
+      console.log(
+        `Scan ${scan.id} marked as failed`
+      );
+    } catch (updateError) {
       console.error(
-        `Failed to check ${currentUrl}:`,
-        error.message
+        `Failed to update scan ${scan.id}:`,
+        updateError.message
       );
     }
   }
-
-  // Mark the scan as completed
-  await prisma.scan.update({
-    where: {
-      id: scan.id,
-    },
-    data: {
-      status: "completed",
-      completedAt: new Date(),
-    },
-  });
-
-  console.log(
-    `Scan ${scan.id} completed for ${website.url}`
-  );
 }
 
 async function runMonitoringCycle() {
@@ -191,13 +225,16 @@ async function runMonitoringCycle() {
     console.log(
       "Previous cycle is still running. Skipping."
     );
+
     return;
   }
 
   running = true;
 
   try {
-    console.log("\n=== Monitoring cycle started ===");
+    console.log(
+      "\n=== Monitoring cycle started ==="
+    );
 
     const websites = await prisma.website.findMany({
       where: {
@@ -205,13 +242,17 @@ async function runMonitoringCycle() {
       },
     });
 
-    console.log(`Found ${websites.length} websites`);
+    console.log(
+      `Found ${websites.length} websites`
+    );
 
     for (const website of websites) {
       await checkWebsite(website);
     }
 
-    console.log("=== Monitoring cycle completed ===\n");
+    console.log(
+      "=== Monitoring cycle completed ===\n"
+    );
   } catch (error) {
     console.error(
       "Monitoring cycle failed:",
