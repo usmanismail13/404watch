@@ -116,7 +116,7 @@ function createCrawler(startUrl) {
     }
 
     return {
-      url: result.url,
+      brokenUrl: result.url,
       statusCode: result.statusCode,
       is404: isNotFoundResponse(result),
     };
