@@ -64,6 +64,16 @@ async function recordError(website, brokenUrl, sourceUrl, status) {
 async function checkWebsite(website) {
   console.log(`Checking ${website.url}`);
 
+  // Create a scan record when the website scan starts
+  const scan = await prisma.scan.create({
+    data: {
+      websiteId: website.id,
+      status: "running",
+    },
+  });
+
+  console.log(`Scan ${scan.id} started for ${website.url}`);
+
   const crawler = createCrawler(
     website.url,
     website.id,
@@ -159,6 +169,21 @@ async function checkWebsite(website) {
       );
     }
   }
+
+  // Mark the scan as completed
+  await prisma.scan.update({
+    where: {
+      id: scan.id,
+    },
+    data: {
+      status: "completed",
+      completedAt: new Date(),
+    },
+  });
+
+  console.log(
+    `Scan ${scan.id} completed for ${website.url}`
+  );
 }
 
 async function runMonitoringCycle() {
