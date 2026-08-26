@@ -1,95 +1,131 @@
 require("dotenv").config();
 
-const workerConfig = {
-  name: "404Watch Monitoring Worker",
-  environment: process.env.NODE_ENV || "development",
-  interval: Number(process.env.WORKER_INTERVAL_MS) || 60 * 1000
-};
+const axios = require("axios");
+const { PrismaClient } = require("../server/generated/prisma/client.ts");
+const { PrismaPg } = require("@prisma/adapter-pg");
 
-const workerState = {
-  status: "starting",
-  lastCycleStartedAt: null,
-  lastCycleCompletedAt: null,
-  lastError: null
-};
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL,
+  }),
+});
 
-let monitoringInterval = null;
-let isShuttingDown = false;
+const interval =
+  Number(process.env.WORKER_INTERVAL_MS) || 60000;
 
-function runWebsiteScan() {
-  console.log("Website scan started");
+let running = false;
 
-  // The actual website crawler will be implemented
-  // in the following Phase 7 steps.
+async function recordError(website, status) {
+  const existingError = await prisma.error404.findFirst({
+    where: {
+      websiteId: website.id,
+      url: website.url,
+      status,
+    },
+    orderBy: {
+      detectedAt: "desc",
+    },
+  });
+
+  if (existingError) {
+    console.log(
+      `Existing ${status} error found for ${website.url}. Skipping duplicate.`
+    );
+    return;
+  }
+
+  await prisma.error404.create({
+    data: {
+      websiteId: website.id,
+      url: website.url,
+      sourceUrl: website.url,
+      status,
+    },
+  });
+
+  console.log(`${status} recorded: ${website.url}`);
+}
+
+async function checkWebsite(website) {
+  console.log(`Checking ${website.url}`);
+
+  try {
+    const response = await axios.get(website.url, {
+      timeout: 10000,
+      maxRedirects: 5,
+      validateStatus: () => true,
+    });
+
+    console.log(`${website.url} -> ${response.status}`);
+
+    if (response.status === 404) {
+      await recordError(website, "404");
+    }
+  } catch (error) {
+    console.error(
+      `Failed to check ${website.url}:`,
+      error.message
+    );
+
+    await recordError(website, "ERROR");
+  }
 }
 
 async function runMonitoringCycle() {
-  if (isShuttingDown) {
+  if (running) {
+    console.log("Previous cycle is still running. Skipping.");
     return;
   }
 
-  workerState.status = "running";
-  workerState.lastCycleStartedAt = new Date().toISOString();
-  workerState.lastError = null;
-
-  console.log("Monitoring cycle started");
-  console.log(`Cycle started at: ${workerState.lastCycleStartedAt}`);
+  running = true;
 
   try {
-    await runWebsiteScan();
+    console.log("\n=== Monitoring cycle started ===");
 
-    workerState.lastCycleCompletedAt = new Date().toISOString();
-    workerState.status = "waiting";
+    const websites = await prisma.website.findMany({
+      where: {
+        monitoringEnabled: true,
+      },
+    });
 
-    console.log(
-      `Monitoring cycle completed at: ${workerState.lastCycleCompletedAt}`
-    );
+    console.log(`Found ${websites.length} websites`);
+
+    for (const website of websites) {
+      await checkWebsite(website);
+    }
+
+    console.log("=== Monitoring cycle completed ===\n");
   } catch (error) {
-    workerState.status = "error";
-    workerState.lastError = error.message;
-
-    console.error("Monitoring cycle failed");
-    console.error(error);
+    console.error("Monitoring cycle failed:", error);
+  } finally {
+    running = false;
   }
 }
 
-function startWorker() {
-  console.log(`${workerConfig.name} started`);
-  console.log(`Environment: ${workerConfig.environment}`);
-  console.log(
-    `Monitoring interval: ${workerConfig.interval / 1000} seconds`
-  );
+async function startWorker() {
+  console.log("404Watch Monitoring Worker started");
+  console.log(`Interval: ${interval / 1000} seconds`);
 
-  runMonitoringCycle();
+  await runMonitoringCycle();
 
-  monitoringInterval = setInterval(() => {
-    runMonitoringCycle();
-  }, workerConfig.interval);
+  setInterval(runMonitoringCycle, interval);
 }
 
-function stopWorker() {
-  if (isShuttingDown) {
-    return;
-  }
+async function shutdown() {
+  console.log("Stopping worker...");
 
-  isShuttingDown = true;
-
-  console.log("404Watch Monitoring Worker stopping...");
-
-  if (monitoringInterval) {
-    clearInterval(monitoringInterval);
-    monitoringInterval = null;
-  }
-
-  workerState.status = "stopped";
-
-  console.log(`Worker status: ${workerState.status}`);
-  console.log("404Watch Monitoring Worker stopped");
+  await prisma["$disconnect"]();
 
   process.exit(0);
 }
 
-process.on("SIGINT", stopWorker);
-process.on("SIGTERM", stopWorker);
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
 
-startWorker();
+startWorker().catch(async (error) => {
+  console.error("Worker startup failed:", error);
+
+  await prisma["$disconnect"]();
+
+  process.exit(1);
+});
