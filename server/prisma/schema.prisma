@@ -1,5 +1,5 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../generated/prisma"
 }
 
@@ -51,7 +51,7 @@ model Error404 {
 
 model Scan {
   id          Int       @id @default(autoincrement())
-  websiteId  Int
+  websiteId   Int
   website     Website   @relation(fields: [websiteId], references: [id])
   status      String
   startedAt   DateTime  @default(now())

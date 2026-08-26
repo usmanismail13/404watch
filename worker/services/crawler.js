@@ -116,23 +116,6 @@ function createCrawler(startUrl, websiteId, prisma) {
     return response.statusCode === 404;
   }
 
-  async function checkExisting404(url) {
-    const normalizedUrl = normalizeUrl(url);
-
-    if (!normalizedUrl) {
-      return null;
-    }
-
-    const existingError = await prisma.error404.findFirst({
-      where: {
-        websiteId: websiteId,
-        url: normalizedUrl,
-      },
-    });
-
-    return existingError;
-  }
-
   async function checkUrlFor404(url, sourceUrl) {
     const result = await requestUrl(url);
 
@@ -142,19 +125,12 @@ function createCrawler(startUrl, websiteId, prisma) {
 
     const is404 = isNotFoundResponse(result);
 
-    let existingError = null;
-
-    if (is404) {
-      existingError = await checkExisting404(result.url);
-    }
-
     return {
       brokenUrl: result.url,
       sourceUrl: sourceUrl || null,
       statusCode: result.statusCode,
       html: result.html,
       is404,
-      existingError,
     };
   }
 
@@ -175,7 +151,6 @@ function createCrawler(startUrl, websiteId, prisma) {
     requestUrl,
     requestUrlWithStatus,
     isNotFoundResponse,
-    checkExisting404,
     checkUrlFor404,
     getVisitedUrls,
   };

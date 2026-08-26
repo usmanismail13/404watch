@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const { PrismaClient } = require("../server/generated/prisma/client.ts");
+const { PrismaClient } = require("../server/generated/prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
 const { createCrawler } = require("./services/crawler");
@@ -22,7 +22,6 @@ async function recordError(website, brokenUrl, sourceUrl, status) {
     where: {
       websiteId: website.id,
       url: brokenUrl,
-      status,
     },
     orderBy: {
       detectedAt: "desc",
@@ -30,9 +29,21 @@ async function recordError(website, brokenUrl, sourceUrl, status) {
   });
 
   if (existingError) {
+    await prisma.error404.update({
+      where: {
+        id: existingError.id,
+      },
+      data: {
+        sourceUrl,
+        status,
+        detectedAt: new Date(),
+      },
+    });
+
     console.log(
-      `Existing ${status} error found for ${brokenUrl}. Skipping duplicate.`
+      `Existing ${status} error updated: ${brokenUrl}`
     );
+
     return;
   }
 
@@ -53,7 +64,11 @@ async function recordError(website, brokenUrl, sourceUrl, status) {
 async function checkWebsite(website) {
   console.log(`Checking ${website.url}`);
 
-  const crawler = createCrawler(website.url);
+  const crawler = createCrawler(
+    website.url,
+    website.id,
+    prisma
+  );
 
   while (!crawler.isQueueEmpty()) {
     const currentUrl = crawler.dequeueUrl();
