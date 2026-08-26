@@ -135,7 +135,7 @@ function createCrawler(startUrl, websiteId, prisma) {
       where: {
         websiteId,
         url: normalizedUrl,
-        status: "active",
+        status: "404",
       },
     });
   }
@@ -153,11 +153,21 @@ function createCrawler(startUrl, websiteId, prisma) {
       return null;
     }
 
+    const recovered404 = await prisma.error404.update({
+      where: {
+        id: existing404.id,
+      },
+      data: {
+        status: "recovered",
+        recoveredAt: new Date(),
+      },
+    });
+
     return {
-      errorId: existing404.id,
-      url: existing404.url,
-      websiteId: existing404.websiteId,
-      status: existing404.status,
+      errorId: recovered404.id,
+      url: recovered404.url,
+      websiteId: recovered404.websiteId,
+      status: recovered404.status,
       recovered: true,
     };
   }
@@ -178,13 +188,7 @@ function createCrawler(startUrl, websiteId, prisma) {
       existing404 = await findActive404(result.url);
 
       if (existing404) {
-        recovery = {
-          errorId: existing404.id,
-          url: existing404.url,
-          websiteId: existing404.websiteId,
-          status: existing404.status,
-          recovered: true,
-        };
+        recovery = await detectRecoveredUrl(result.url);
       }
     }
 

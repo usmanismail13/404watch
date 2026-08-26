@@ -35,15 +35,16 @@ model Website {
 }
 
 model Error404 {
-  id         Int      @id @default(autoincrement())
-  websiteId  Int
-  website    Website  @relation(fields: [websiteId], references: [id])
-  url        String
-  sourceUrl  String
-  status     String
-  detectedAt DateTime @default(now())
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  websiteId   Int
+  website     Website  @relation(fields: [websiteId], references: [id])
+  url         String
+  sourceUrl   String
+  status      String
+  recoveredAt DateTime?
+  detectedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([websiteId])
   @@index([status])
