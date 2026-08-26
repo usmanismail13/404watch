@@ -1,9 +1,15 @@
 const { normalizeUrl } = require("./urlNormalizer");
 const { fetchUrl } = require("./urlFetcher");
 
+const MAX_CONCURRENT_REQUESTS =
+  Number(process.env.CRAWLER_CONCURRENCY) || 5;
+
 function createCrawler(startUrl, websiteId, prisma) {
   const visitedUrls = new Set();
   const crawlerQueue = [];
+
+  let activeRequests = 0;
+  const waitingRequests = [];
 
   const normalizedStartUrl = normalizeUrl(startUrl);
 
@@ -81,6 +87,33 @@ function createCrawler(startUrl, websiteId, prisma) {
     return [...crawlerQueue];
   }
 
+  function acquireRequestSlot() {
+    if (activeRequests < MAX_CONCURRENT_REQUESTS) {
+      activeRequests++;
+      return Promise.resolve();
+    }
+
+    return new Promise((resolve) => {
+      waitingRequests.push(resolve);
+    }).then(() => {
+      activeRequests++;
+    });
+  }
+
+  function releaseRequestSlot() {
+    activeRequests--;
+
+    if (activeRequests < 0) {
+      activeRequests = 0;
+    }
+
+    const nextRequest = waitingRequests.shift();
+
+    if (nextRequest) {
+      nextRequest();
+    }
+  }
+
   async function requestUrl(url) {
     const normalizedUrl = normalizeUrl(url);
 
@@ -92,7 +125,13 @@ function createCrawler(startUrl, websiteId, prisma) {
       return null;
     }
 
-    return fetchUrl(normalizedUrl);
+    await acquireRequestSlot();
+
+    try {
+      return await fetchUrl(normalizedUrl);
+    } finally {
+      releaseRequestSlot();
+    }
   }
 
   async function requestUrlWithStatus(url) {
@@ -207,6 +246,14 @@ function createCrawler(startUrl, websiteId, prisma) {
     return Array.from(visitedUrls);
   }
 
+  function getActiveRequestCount() {
+    return activeRequests;
+  }
+
+  function getWaitingRequestCount() {
+    return waitingRequests.length;
+  }
+
   enqueueUrl(normalizedStartUrl);
 
   return {
@@ -225,6 +272,8 @@ function createCrawler(startUrl, websiteId, prisma) {
     detectRecoveredUrl,
     checkUrlFor404,
     getVisitedUrls,
+    getActiveRequestCount,
+    getWaitingRequestCount,
   };
 }
 
