@@ -7,6 +7,7 @@ const MAX_CONCURRENT_REQUESTS =
 function createCrawler(startUrl, websiteId, prisma) {
   const visitedUrls = new Set();
   const crawlerQueue = [];
+  const queuedUrls = new Set();
 
   let activeRequests = 0;
   const waitingRequests = [];
@@ -48,6 +49,8 @@ function createCrawler(startUrl, websiteId, prisma) {
 
     visitedUrls.add(normalizedUrl);
 
+    queuedUrls.delete(normalizedUrl);
+
     return true;
   }
 
@@ -62,17 +65,26 @@ function createCrawler(startUrl, websiteId, prisma) {
       return false;
     }
 
-    if (crawlerQueue.includes(normalizedUrl)) {
+    if (queuedUrls.has(normalizedUrl)) {
       return false;
     }
 
     crawlerQueue.push(normalizedUrl);
+    queuedUrls.add(normalizedUrl);
 
     return true;
   }
 
   function dequeueUrl() {
-    return crawlerQueue.shift() || null;
+    const url = crawlerQueue.shift();
+
+    if (!url) {
+      return null;
+    }
+
+    queuedUrls.delete(url);
+
+    return url;
   }
 
   function isQueueEmpty() {
@@ -90,6 +102,7 @@ function createCrawler(startUrl, websiteId, prisma) {
   function acquireRequestSlot() {
     if (activeRequests < MAX_CONCURRENT_REQUESTS) {
       activeRequests++;
+
       return Promise.resolve();
     }
 
@@ -254,6 +267,10 @@ function createCrawler(startUrl, websiteId, prisma) {
     return waitingRequests.length;
   }
 
+  function getQueuedUrlCount() {
+    return queuedUrls.size;
+  }
+
   enqueueUrl(normalizedStartUrl);
 
   return {
@@ -274,6 +291,7 @@ function createCrawler(startUrl, websiteId, prisma) {
     getVisitedUrls,
     getActiveRequestCount,
     getWaitingRequestCount,
+    getQueuedUrlCount,
   };
 }
 
