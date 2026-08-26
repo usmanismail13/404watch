@@ -1,4 +1,5 @@
 const { normalizeUrl } = require("./urlNormalizer");
+const { fetchUrl } = require("./urlFetcher");
 
 function createCrawler(startUrl) {
   const visitedUrls = new Set();
@@ -72,11 +73,25 @@ function createCrawler(startUrl) {
     return [...crawlerQueue];
   }
 
+  async function requestUrl(url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!normalizedUrl) {
+      throw new Error("Invalid URL");
+    }
+
+    if (!markAsVisited(normalizedUrl)) {
+      return null;
+    }
+
+    return fetchUrl(normalizedUrl);
+  }
+
   function getVisitedUrls() {
     return Array.from(visitedUrls);
   }
 
-  markAsVisited(normalizedStartUrl);
+  enqueueUrl(normalizedStartUrl);
 
   return {
     hasVisited,
@@ -86,6 +101,7 @@ function createCrawler(startUrl) {
     isQueueEmpty,
     getQueueSize,
     getQueuedUrls,
+    requestUrl,
     getVisitedUrls,
   };
 }
