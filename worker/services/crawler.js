@@ -1,5 +1,9 @@
 const { normalizeUrl } = require("./urlNormalizer");
 const { fetchUrl } = require("./urlFetcher");
+const {
+  isSafeUrl,
+  isSafeUrlResolved,
+} = require("./urlSafety");
 
 const MAX_CONCURRENT_REQUESTS =
   Number(process.env.CRAWLER_CONCURRENCY) || 5;
@@ -7,7 +11,6 @@ const MAX_CONCURRENT_REQUESTS =
 function createCrawler(startUrl, websiteId, prisma) {
   const visitedUrls = new Set();
   const crawlerQueue = [];
-  const queuedUrls = new Set();
 
   let activeRequests = 0;
   const waitingRequests = [];
@@ -16,6 +19,12 @@ function createCrawler(startUrl, websiteId, prisma) {
 
   if (!normalizedStartUrl) {
     throw new Error("Invalid start URL");
+  }
+
+  if (!isSafeUrl(normalizedStartUrl)) {
+    throw new Error(
+      `Blocked unsafe/private start URL: ${normalizedStartUrl}`
+    );
   }
 
   if (!websiteId) {
@@ -49,8 +58,6 @@ function createCrawler(startUrl, websiteId, prisma) {
 
     visitedUrls.add(normalizedUrl);
 
-    queuedUrls.delete(normalizedUrl);
-
     return true;
   }
 
@@ -61,30 +68,29 @@ function createCrawler(startUrl, websiteId, prisma) {
       return false;
     }
 
+    if (!isSafeUrl(normalizedUrl)) {
+      console.log(
+        `Blocked unsafe/private URL: ${normalizedUrl}`
+      );
+
+      return false;
+    }
+
     if (hasVisited(normalizedUrl)) {
       return false;
     }
 
-    if (queuedUrls.has(normalizedUrl)) {
+    if (crawlerQueue.includes(normalizedUrl)) {
       return false;
     }
 
     crawlerQueue.push(normalizedUrl);
-    queuedUrls.add(normalizedUrl);
 
     return true;
   }
 
   function dequeueUrl() {
-    const url = crawlerQueue.shift();
-
-    if (!url) {
-      return null;
-    }
-
-    queuedUrls.delete(url);
-
-    return url;
+    return crawlerQueue.shift() || null;
   }
 
   function isQueueEmpty() {
@@ -134,6 +140,21 @@ function createCrawler(startUrl, websiteId, prisma) {
       throw new Error("Invalid URL");
     }
 
+    if (!isSafeUrl(normalizedUrl)) {
+      throw new Error(
+        `Blocked unsafe/private URL: ${normalizedUrl}`
+      );
+    }
+
+    const resolvedSafe =
+      await isSafeUrlResolved(normalizedUrl);
+
+    if (!resolvedSafe) {
+      throw new Error(
+        `Blocked URL resolving to a private/internal address: ${normalizedUrl}`
+      );
+    }
+
     if (!markAsVisited(normalizedUrl)) {
       return null;
     }
@@ -161,7 +182,10 @@ function createCrawler(startUrl, websiteId, prisma) {
   }
 
   function isNotFoundResponse(response) {
-    if (!response || typeof response.statusCode !== "number") {
+    if (
+      !response ||
+      typeof response.statusCode !== "number"
+    ) {
       return false;
     }
 
@@ -169,11 +193,17 @@ function createCrawler(startUrl, websiteId, prisma) {
   }
 
   function isSuccessfulResponse(response) {
-    if (!response || typeof response.statusCode !== "number") {
+    if (
+      !response ||
+      typeof response.statusCode !== "number"
+    ) {
       return false;
     }
 
-    return response.statusCode >= 200 && response.statusCode < 300;
+    return (
+      response.statusCode >= 200 &&
+      response.statusCode < 300
+    );
   }
 
   async function findActive404(url) {
@@ -199,21 +229,23 @@ function createCrawler(startUrl, websiteId, prisma) {
       return null;
     }
 
-    const existing404 = await findActive404(normalizedUrl);
+    const existing404 =
+      await findActive404(normalizedUrl);
 
     if (!existing404) {
       return null;
     }
 
-    const recovered404 = await prisma.error404.update({
-      where: {
-        id: existing404.id,
-      },
-      data: {
-        status: "recovered",
-        recoveredAt: new Date(),
-      },
-    });
+    const recovered404 =
+      await prisma.error404.update({
+        where: {
+          id: existing404.id,
+        },
+        data: {
+          status: "recovered",
+          recoveredAt: new Date(),
+        },
+      });
 
     return {
       errorId: recovered404.id,
@@ -237,10 +269,12 @@ function createCrawler(startUrl, websiteId, prisma) {
     let recovery = null;
 
     if (isSuccessfulResponse(result)) {
-      existing404 = await findActive404(result.url);
+      existing404 =
+        await findActive404(result.url);
 
       if (existing404) {
-        recovery = await detectRecoveredUrl(result.url);
+        recovery =
+          await detectRecoveredUrl(result.url);
       }
     }
 
@@ -267,10 +301,6 @@ function createCrawler(startUrl, websiteId, prisma) {
     return waitingRequests.length;
   }
 
-  function getQueuedUrlCount() {
-    return queuedUrls.size;
-  }
-
   enqueueUrl(normalizedStartUrl);
 
   return {
@@ -291,7 +321,6 @@ function createCrawler(startUrl, websiteId, prisma) {
     getVisitedUrls,
     getActiveRequestCount,
     getWaitingRequestCount,
-    getQueuedUrlCount,
   };
 }
 
