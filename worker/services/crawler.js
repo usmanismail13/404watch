@@ -87,6 +87,19 @@ function createCrawler(startUrl) {
     return fetchUrl(normalizedUrl);
   }
 
+  async function requestUrlWithStatus(url) {
+    const result = await requestUrl(url);
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      url: result.url,
+      statusCode: result.statusCode,
+    };
+  }
+
   function getVisitedUrls() {
     return Array.from(visitedUrls);
   }
@@ -102,6 +115,7 @@ function createCrawler(startUrl) {
     getQueueSize,
     getQueuedUrls,
     requestUrl,
+    requestUrlWithStatus,
     getVisitedUrls,
   };
 }
