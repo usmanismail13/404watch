@@ -2,6 +2,7 @@ const { normalizeUrl } = require("./urlNormalizer");
 
 function createCrawler(startUrl) {
   const visitedUrls = new Set();
+  const crawlerQueue = [];
 
   const normalizedStartUrl = normalizeUrl(startUrl);
 
@@ -35,6 +36,42 @@ function createCrawler(startUrl) {
     return true;
   }
 
+  function enqueueUrl(url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!normalizedUrl) {
+      return false;
+    }
+
+    if (hasVisited(normalizedUrl)) {
+      return false;
+    }
+
+    if (crawlerQueue.includes(normalizedUrl)) {
+      return false;
+    }
+
+    crawlerQueue.push(normalizedUrl);
+
+    return true;
+  }
+
+  function dequeueUrl() {
+    return crawlerQueue.shift() || null;
+  }
+
+  function isQueueEmpty() {
+    return crawlerQueue.length === 0;
+  }
+
+  function getQueueSize() {
+    return crawlerQueue.length;
+  }
+
+  function getQueuedUrls() {
+    return [...crawlerQueue];
+  }
+
   function getVisitedUrls() {
     return Array.from(visitedUrls);
   }
@@ -44,6 +81,11 @@ function createCrawler(startUrl) {
   return {
     hasVisited,
     markAsVisited,
+    enqueueUrl,
+    dequeueUrl,
+    isQueueEmpty,
+    getQueueSize,
+    getQueuedUrls,
     getVisitedUrls,
   };
 }
