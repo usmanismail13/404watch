@@ -100,6 +100,28 @@ function createCrawler(startUrl) {
     };
   }
 
+  function isNotFoundResponse(response) {
+    if (!response || typeof response.statusCode !== "number") {
+      return false;
+    }
+
+    return response.statusCode === 404;
+  }
+
+  async function checkUrlFor404(url) {
+    const result = await requestUrl(url);
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      url: result.url,
+      statusCode: result.statusCode,
+      is404: isNotFoundResponse(result),
+    };
+  }
+
   function getVisitedUrls() {
     return Array.from(visitedUrls);
   }
@@ -116,6 +138,8 @@ function createCrawler(startUrl) {
     getQueuedUrls,
     requestUrl,
     requestUrlWithStatus,
+    isNotFoundResponse,
+    checkUrlFor404,
     getVisitedUrls,
   };
 }
