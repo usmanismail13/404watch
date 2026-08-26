@@ -1,7 +1,7 @@
 const { normalizeUrl } = require("./urlNormalizer");
 const { fetchUrl } = require("./urlFetcher");
 
-function createCrawler(startUrl) {
+function createCrawler(startUrl, websiteId, prisma) {
   const visitedUrls = new Set();
   const crawlerQueue = [];
 
@@ -9,6 +9,14 @@ function createCrawler(startUrl) {
 
   if (!normalizedStartUrl) {
     throw new Error("Invalid start URL");
+  }
+
+  if (!websiteId) {
+    throw new Error("Website ID is required");
+  }
+
+  if (!prisma) {
+    throw new Error("Prisma client is required");
   }
 
   function hasVisited(url) {
@@ -108,6 +116,23 @@ function createCrawler(startUrl) {
     return response.statusCode === 404;
   }
 
+  async function checkExisting404(url) {
+    const normalizedUrl = normalizeUrl(url);
+
+    if (!normalizedUrl) {
+      return null;
+    }
+
+    const existingError = await prisma.error404.findFirst({
+      where: {
+        websiteId: websiteId,
+        url: normalizedUrl,
+      },
+    });
+
+    return existingError;
+  }
+
   async function checkUrlFor404(url, sourceUrl) {
     const result = await requestUrl(url);
 
@@ -115,12 +140,21 @@ function createCrawler(startUrl) {
       return null;
     }
 
+    const is404 = isNotFoundResponse(result);
+
+    let existingError = null;
+
+    if (is404) {
+      existingError = await checkExisting404(result.url);
+    }
+
     return {
       brokenUrl: result.url,
       sourceUrl: sourceUrl || null,
       statusCode: result.statusCode,
       html: result.html,
-      is404: isNotFoundResponse(result),
+      is404,
+      existingError,
     };
   }
 
@@ -141,6 +175,7 @@ function createCrawler(startUrl) {
     requestUrl,
     requestUrlWithStatus,
     isNotFoundResponse,
+    checkExisting404,
     checkUrlFor404,
     getVisitedUrls,
   };
