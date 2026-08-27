@@ -19,6 +19,9 @@ const prisma = new PrismaClient({
 const interval =
   Number(process.env.WORKER_INTERVAL_MS) || 60000;
 
+const maxSimultaneousScans =
+  Number(process.env.MAX_SIMULTANEOUS_SCANS) || 2;
+
 let running = false;
 
 async function recordError(
@@ -229,8 +232,33 @@ async function runMonitoringCycle() {
       `Found ${websites.length} websites`
     );
 
-    for (const website of websites) {
-      await checkWebsite(website);
+    /*
+     * Limit the number of websites being scanned
+     * simultaneously.
+     */
+    for (
+      let i = 0;
+      i < websites.length;
+      i += maxSimultaneousScans
+    ) {
+      const batch = websites.slice(
+        i,
+        i + maxSimultaneousScans
+      );
+
+      console.log(
+        `Starting scan batch: ${batch.length} websites`
+      );
+
+      await Promise.all(
+        batch.map((website) =>
+          checkWebsite(website)
+        )
+      );
+
+      console.log(
+        `Scan batch completed: ${batch.length} websites`
+      );
     }
 
     console.log(
@@ -253,6 +281,10 @@ async function startWorker() {
 
   console.log(
     `Interval: ${interval / 1000} seconds`
+  );
+
+  console.log(
+    `Maximum simultaneous scans: ${maxSimultaneousScans}`
   );
 
   await runMonitoringCycle();
