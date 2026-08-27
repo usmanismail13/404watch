@@ -44,17 +44,14 @@ function isPrivateIp(ip) {
   if (net.isIPv6(ip)) {
     const normalized = ip.toLowerCase();
 
-    // IPv6 loopback
     if (normalized === "::1") {
       return true;
     }
 
-    // IPv6 unspecified
     if (normalized === "::") {
       return true;
     }
 
-    // IPv4-mapped IPv6 addresses
     if (normalized.startsWith("::ffff:")) {
       const ipv4 = normalized.substring(7);
 
@@ -63,7 +60,6 @@ function isPrivateIp(ip) {
       }
     }
 
-    // fc00::/7 - Unique local addresses
     if (
       normalized.startsWith("fc") ||
       normalized.startsWith("fd")
@@ -71,7 +67,6 @@ function isPrivateIp(ip) {
       return true;
     }
 
-    // fe80::/10 - Link-local addresses
     if (
       normalized.startsWith("fe8") ||
       normalized.startsWith("fe9") ||
@@ -114,6 +109,25 @@ function isPrivateHostname(hostname) {
   return false;
 }
 
+function isLocalTestUrl(url) {
+  if (process.env.ALLOW_LOCAL_TEST_SITE !== "true") {
+    return false;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+
+    return (
+      (parsedUrl.protocol === "http:" ||
+        parsedUrl.protocol === "https:") &&
+      (parsedUrl.hostname === "127.0.0.1" ||
+        parsedUrl.hostname === "localhost")
+    );
+  } catch (error) {
+    return false;
+  }
+}
+
 function isSafeUrl(url) {
   try {
     const parsedUrl = new URL(url);
@@ -123,6 +137,10 @@ function isSafeUrl(url) {
       parsedUrl.protocol !== "https:"
     ) {
       return false;
+    }
+
+    if (isLocalTestUrl(url)) {
+      return true;
     }
 
     const hostname = parsedUrl.hostname.toLowerCase();
@@ -147,6 +165,10 @@ async function isSafeUrlResolved(url) {
 
     if (!isSafeUrl(url)) {
       return false;
+    }
+
+    if (isLocalTestUrl(url)) {
+      return true;
     }
 
     const hostname = parsedUrl.hostname;

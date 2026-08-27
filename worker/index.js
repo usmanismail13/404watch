@@ -108,6 +108,9 @@ async function checkWebsite(website) {
           `${result.brokenUrl} -> ${result.statusCode}`
         );
 
+        /*
+         * 404 response
+         */
         if (result.is404) {
           await recordError(
             website,
@@ -119,53 +122,29 @@ async function checkWebsite(website) {
           continue;
         }
 
+        /*
+         * Successful HTML page
+         *
+         * Extract all links and add them to the
+         * crawler queue. The main crawler loop will
+         * process those URLs next.
+         */
         if (result.html) {
           const links = extractLinks(
             result.html,
             result.brokenUrl
           );
 
+          console.log(
+            `Found ${links.length} links on ${result.brokenUrl}`
+          );
+
           for (const link of links) {
-            try {
-              const linkResult =
-                await crawler.checkUrlFor404(
-                  link,
-                  result.brokenUrl
-                );
+            const added = crawler.enqueueUrl(link);
 
-              if (!linkResult) {
-                continue;
-              }
-
+            if (added) {
               console.log(
-                `${linkResult.brokenUrl} -> ${linkResult.statusCode}`
-              );
-
-              if (linkResult.is404) {
-                await recordError(
-                  website,
-                  linkResult.brokenUrl,
-                  result.brokenUrl,
-                  "404"
-                );
-              } else {
-                crawler.enqueueUrl(link);
-
-                if (linkResult.html) {
-                  const nestedLinks = extractLinks(
-                    linkResult.html,
-                    linkResult.brokenUrl
-                  );
-
-                  for (const nestedLink of nestedLinks) {
-                    crawler.enqueueUrl(nestedLink);
-                  }
-                }
-              }
-            } catch (error) {
-              console.error(
-                `Failed to check link ${link}:`,
-                error.message
+                `Queued: ${link}`
               );
             }
           }
