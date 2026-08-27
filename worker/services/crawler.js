@@ -206,6 +206,21 @@ function createCrawler(startUrl, websiteId, prisma) {
     );
   }
 
+  async function checkUrlForSuccess(url) {
+    const result = await requestUrl(url);
+
+    if (!result) {
+      return null;
+    }
+
+    return {
+      url: result.url,
+      statusCode: result.statusCode,
+      html: result.html,
+      successful: isSuccessfulResponse(result),
+    };
+  }
+
   async function findActive404(url) {
     const normalizedUrl = normalizeUrl(url);
 
@@ -315,6 +330,7 @@ function createCrawler(startUrl, websiteId, prisma) {
     requestUrlWithStatus,
     isNotFoundResponse,
     isSuccessfulResponse,
+    checkUrlForSuccess,
     findActive404,
     detectRecoveredUrl,
     checkUrlFor404,

@@ -20,6 +20,7 @@
     "prisma": "^7.10.0"
   },
   "devDependencies": {
+    "http-server": "^14.1.1",
     "tsx": "^4.23.12"
   }
 }
