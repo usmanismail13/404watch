@@ -8,7 +8,10 @@ const { PrismaPg } = require("@prisma/adapter-pg");
 const { createCrawler } = require("./services/crawler");
 const { extractLinks } = require("./services/linkExtractor");
 
-console.log("DATABASE_URL loaded:", !!process.env.DATABASE_URL);
+console.log(
+  "DATABASE_URL loaded:",
+  !!process.env.DATABASE_URL
+);
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
@@ -21,6 +24,12 @@ const interval =
 
 const maxSimultaneousScans =
   Number(process.env.MAX_SIMULTANEOUS_SCANS) || 2;
+
+const maxScanRetries =
+  Number(process.env.MAX_SCAN_RETRIES) || 2;
+
+const scanRetryDelay =
+  Number(process.env.SCAN_RETRY_DELAY_MS) || 5000;
 
 let running = false;
 
@@ -177,6 +186,8 @@ async function checkWebsite(website) {
     console.log(
       `Scan ${scan.id} completed for ${website.url}`
     );
+
+    return true;
   } catch (error) {
     console.error(
       `Scan ${scan.id} failed for ${website.url}:`,
@@ -203,6 +214,48 @@ async function checkWebsite(website) {
         updateError.message
       );
     }
+
+    return false;
+  }
+}
+
+function wait(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function checkWebsiteWithRetry(website) {
+  let attempt = 0;
+
+  while (attempt <= maxScanRetries) {
+    attempt++;
+
+    console.log(
+      `Scan attempt ${attempt}/${maxScanRetries + 1} for ${website.url}`
+    );
+
+    const success = await checkWebsite(website);
+
+    if (success) {
+      return;
+    }
+
+    if (attempt > maxScanRetries) {
+      console.error(
+        `Scan permanently failed after ${attempt} attempts: ${website.url}`
+      );
+
+      return;
+    }
+
+    console.log(
+      `Retrying scan for ${website.url} in ${
+        scanRetryDelay / 1000
+      } seconds...`
+    );
+
+    await wait(scanRetryDelay);
   }
 }
 
@@ -252,7 +305,7 @@ async function runMonitoringCycle() {
 
       await Promise.all(
         batch.map((website) =>
-          checkWebsite(website)
+          checkWebsiteWithRetry(website)
         )
       );
 
@@ -285,6 +338,14 @@ async function startWorker() {
 
   console.log(
     `Maximum simultaneous scans: ${maxSimultaneousScans}`
+  );
+
+  console.log(
+    `Maximum scan retries: ${maxScanRetries}`
+  );
+
+  console.log(
+    `Scan retry delay: ${scanRetryDelay / 1000} seconds`
   );
 
   await runMonitoringCycle();
