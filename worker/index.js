@@ -1,10 +1,14 @@
-require("dotenv").config();
+require("dotenv").config({
+  path: "./worker/.env",
+});
 
 const { PrismaClient } = require("../server/generated/prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
 const { createCrawler } = require("./services/crawler");
 const { extractLinks } = require("./services/linkExtractor");
+
+console.log("DATABASE_URL loaded:", !!process.env.DATABASE_URL);
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({
