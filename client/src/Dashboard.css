@@ -271,3 +271,43 @@
     margin-top: 5px;
   }
 }
+ /* =========================================================
+    📄 Phase 9.11 — Error Pagination
+    ========================================================= */
+
+.error-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 16px 0;
+}
+
+.error-pagination button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2563eb;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.error-pagination button:hover:not(:disabled) {
+  background-color: #1d4ed8;
+}
+
+.error-pagination button:disabled {
+  background-color: #cbd5e1;
+  color: #64748b;
+  cursor: not-allowed;
+}
+
+.error-pagination span {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+}

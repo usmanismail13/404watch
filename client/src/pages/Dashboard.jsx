@@ -15,10 +15,34 @@ function Dashboard() {
   // 🚨 Phase 9.10 — Selected error filter
   const [errorFilter, setErrorFilter] = useState("all");
 
+  // 📄 Phase 9.11 — Error pagination
+  const [errorPage, setErrorPage] = useState(1);
+  const [errorTotalPages, setErrorTotalPages] = useState(1);
+  const errorLimit = 10;
+
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
   const [error, setError] = useState("");
   const [scanMessage, setScanMessage] = useState("");
+
+  // =========================================================
+  // 📄 Phase 9.11 — Pagination controls
+  // =========================================================
+
+  const handlePreviousErrorPage = () => {
+    setErrorPage((currentPage) =>
+      Math.max(currentPage - 1, 1)
+    );
+  };
+
+  const handleNextErrorPage = () => {
+    setErrorPage((currentPage) =>
+      Math.min(
+        currentPage + 1,
+        errorTotalPages
+      )
+    );
+  };
 
   // =========================================================
   // 📊 Fetch dashboard data
@@ -35,7 +59,9 @@ function Dashboard() {
         statsResponse,
       ] = await Promise.all([
         api.get("/api/websites"),
-        api.get("/api/errors"),
+        api.get(
+          `/api/errors?page=${errorPage}&limit=${errorLimit}`
+        ),
         api.get("/api/dashboard/stats"),
       ]);
 
@@ -54,6 +80,10 @@ function Dashboard() {
       setRecoveredErrors(stats.recoveredErrors || 0);
       setActiveErrors(stats.activeErrors || 0);
       setLastScan(stats.lastScan || null);
+
+      setErrorTotalPages(
+        errorsResponse.data.totalPages || 1
+      );
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -62,7 +92,7 @@ function Dashboard() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [errorPage]);
 
   useEffect(() => {
     fetchDashboard();
@@ -193,14 +223,6 @@ function Dashboard() {
 
   // =========================================================
   // 🚨 Phase 9.10 — Determine error status
-  // =========================================================
-  //
-  // Your backend currently returns:
-  //
-  // status: 404       → Active error
-  // status: "recovered" → Recovered error
-  //
-  // We support both numeric and string 404 values.
   // =========================================================
 
   const isRecoveredError = (errorItem) => {
@@ -567,10 +589,6 @@ function Dashboard() {
 
         ) : filteredErrors.length === 0 ? (
 
-          /* =================================================
-             📭 Filter-specific empty state
-          ================================================= */
-
           <p>
             {errorFilter === "all"
               ? "No broken URLs found."
@@ -581,106 +599,151 @@ function Dashboard() {
 
         ) : (
 
-          /* =================================================
-             🔗 Filtered error list
-          ================================================= */
+          <>
+            {/* =============================================
+                🔗 Error List
+            ============================================= */}
 
-          <div className="error-list">
+            <div className="error-list">
 
-            {filteredErrors.map(
-              (errorItem) => {
+              {filteredErrors.map(
+                (errorItem) => {
 
-                const isRecovered =
-                  isRecoveredError(
-                    errorItem
-                  );
+                  const isRecovered =
+                    isRecoveredError(
+                      errorItem
+                    );
 
-                return (
+                  return (
 
-                  <div
-                    className={`error-item ${
-                      isRecovered
-                        ? "error-item-recovered"
-                        : "error-item-active"
-                    }`}
-                    key={errorItem.id}
-                  >
+                    <div
+                      className={`error-item ${
+                        isRecovered
+                          ? "error-item-recovered"
+                          : "error-item-active"
+                      }`}
+                      key={errorItem.id}
+                    >
 
-                    {/* =====================================
-                        🚨 Error Header
-                    ===================================== */}
+                      {/* =================================
+                          🚨 Error Header
+                      ================================= */}
 
-                    <div className="error-item-header">
+                      <div className="error-item-header">
 
-                      <h3>
-                        🔗{" "}
-                        {errorItem.url}
-                      </h3>
+                        <h3>
+                          🔗{" "}
+                          {errorItem.url}
+                        </h3>
 
-                      <span
-                        className={
-                          isRecovered
-                            ? "error-status error-status-recovered"
-                            : "error-status error-status-active"
-                        }
-                      >
-                        {isRecovered
-                          ? "🟢 Recovered"
-                          : "🔴 Active"}
-                      </span>
+                        <span
+                          className={
+                            isRecovered
+                              ? "error-status error-status-recovered"
+                              : "error-status error-status-active"
+                          }
+                        >
+                          {isRecovered
+                            ? "🟢 Recovered"
+                            : "🔴 Active"}
+                        </span>
+
+                      </div>
+
+                      {/* =================================
+                          🌐 Website
+                      ================================= */}
+
+                      <p>
+                        🌐 Website:{" "}
+                        {errorItem.website
+                          ?.url ||
+                          "Unknown"}
+                      </p>
+
+                      {/* =================================
+                          📄 Source page
+                      ================================= */}
+
+                      <p>
+                        📄 Source Page:{" "}
+                        {errorItem.sourceUrl ||
+                          "Unknown"}
+                      </p>
+
+                      {/* =================================
+                          🚨 HTTP Status
+                      ================================= */}
+
+                      <p>
+                        🚨 Status:{" "}
+                        {errorItem.status}
+                      </p>
+
+                      {/* =================================
+                          🕐 Detection time
+                      ================================= */}
+
+                      <p>
+                        🕐 Detected:{" "}
+                        {errorItem.detectedAt
+                          ? new Date(
+                              errorItem.detectedAt
+                            ).toLocaleString()
+                          : "Unknown"}
+                      </p>
 
                     </div>
 
-                    {/* =====================================
-                        🌐 Website
-                    ===================================== */}
+                  );
+                }
+              )}
 
-                    <p>
-                      🌐 Website:{" "}
-                      {errorItem.website
-                        ?.url ||
-                        "Unknown"}
-                    </p>
+            </div>
 
-                    {/* =====================================
-                        📄 Source page
-                    ===================================== */}
+            {/* =============================================
+                📄 Phase 9.11 — Pagination Controls
+            ============================================= */}
 
-                    <p>
-                      📄 Source Page:{" "}
-                      {errorItem.sourceUrl ||
-                        "Unknown"}
-                    </p>
+            {errorTotalPages > 1 && (
 
-                    {/* =====================================
-                        🚨 HTTP Status
-                    ===================================== */}
+              <div className="error-pagination">
 
-                    <p>
-                      🚨 Status:{" "}
-                      {errorItem.status}
-                    </p>
+                <button
+                  type="button"
+                  onClick={
+                    handlePreviousErrorPage
+                  }
+                  disabled={
+                    errorPage === 1
+                  }
+                >
+                  ◀️ Previous
+                </button>
 
-                    {/* =====================================
-                        🕐 Detection time
-                    ===================================== */}
+                <span>
+                  📄 Page {errorPage} of{" "}
+                  {errorTotalPages}
+                </span>
 
-                    <p>
-                      🕐 Detected:{" "}
-                      {errorItem.detectedAt
-                        ? new Date(
-                            errorItem.detectedAt
-                          ).toLocaleString()
-                        : "Unknown"}
-                    </p>
+                <button
+                  type="button"
+                  onClick={
+                    handleNextErrorPage
+                  }
+                  disabled={
+                    errorPage ===
+                    errorTotalPages
+                  }
+                >
+                  Next ▶️
+                </button>
 
-                  </div>
+              </div>
 
-                );
-              }
             )}
 
-          </div>
+          </>
 
         )}
 
