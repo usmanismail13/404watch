@@ -5,6 +5,7 @@ import "../Dashboard.css";
 
 function Dashboard() {
   const [websites, setWebsites] = useState([]);
+  const [errors, setErrors] = useState([]);
   const [errorCount, setErrorCount] = useState(0);
   const [lastScan, setLastScan] = useState(null);
   const [total404Errors, setTotal404Errors] = useState(0);
@@ -28,8 +29,11 @@ function Dashboard() {
           api.get("/api/dashboard/stats"),
         ]);
 
+      const fetchedErrors = errorsResponse.data.errors || [];
+
       setWebsites(websitesResponse.data.websites || []);
-      setErrorCount((errorsResponse.data.errors || []).length);
+      setErrors(fetchedErrors);
+      setErrorCount(fetchedErrors.length);
       setTotal404Errors(statsResponse.data.totalErrors || 0);
       setRecoveredErrors(statsResponse.data.recoveredErrors || 0);
       setActiveErrors(statsResponse.data.activeErrors || 0);
@@ -266,6 +270,52 @@ function Dashboard() {
                     Delete
                   </button>
                 </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="dashboard-errors">
+        <h2>🔗 Broken URLs</h2>
+
+        {loading ? (
+          <p>Loading broken URLs...</p>
+        ) : errors.length === 0 ? (
+          <p>No broken URLs found.</p>
+        ) : (
+          <div className="error-list">
+            {errors.map((errorItem) => (
+              <div
+                className="error-item"
+                key={errorItem.id}
+              >
+                <h3>
+                  🔗 {errorItem.url}
+                </h3>
+
+                <p>
+                  🌐 Website:{" "}
+                  {errorItem.website?.url || "Unknown"}
+                </p>
+
+                <p>
+                  📄 Source Page:{" "}
+                  {errorItem.sourceUrl || "Unknown"}
+                </p>
+
+                <p>
+                  🚨 Status: {errorItem.status}
+                </p>
+
+                <p>
+                  🕐 Detected:{" "}
+                  {errorItem.detectedAt
+                    ? new Date(
+                        errorItem.detectedAt
+                      ).toLocaleString()
+                    : "Unknown"}
+                </p>
               </div>
             ))}
           </div>
