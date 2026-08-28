@@ -2,6 +2,7 @@ const express = require("express");
 
 const { PrismaClient } = require("../generated/prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -11,18 +12,30 @@ const prisma = new PrismaClient({
   }),
 });
 
-router.get("/stats", async (req, res) => {
+router.get("/stats", authMiddleware, async (req, res) => {
   try {
-    const totalErrors = await prisma.error404.count();
+    const totalErrors = await prisma.error404.count({
+      where: {
+        website: {
+          userId: req.user.id,
+        },
+      },
+    });
 
     const activeErrors = await prisma.error404.count({
       where: {
+        website: {
+          userId: req.user.id,
+        },
         status: "404",
       },
     });
 
     const recoveredErrors = await prisma.error404.count({
       where: {
+        website: {
+          userId: req.user.id,
+        },
         recoveredAt: {
           not: null,
         },
@@ -31,6 +44,9 @@ router.get("/stats", async (req, res) => {
 
     const lastScan = await prisma.scan.findFirst({
       where: {
+        website: {
+          userId: req.user.id,
+        },
         status: "completed",
         completedAt: {
           not: null,
