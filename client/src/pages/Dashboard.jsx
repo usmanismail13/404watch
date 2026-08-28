@@ -33,6 +33,7 @@ function Dashboard() {
       setTotal404Errors(statsResponse.data.totalErrors || 0);
       setRecoveredErrors(statsResponse.data.recoveredErrors || 0);
       setActiveErrors(statsResponse.data.activeErrors || 0);
+      setLastScan(statsResponse.data.lastScan || null);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -81,7 +82,11 @@ function Dashboard() {
         }
       }
 
-      setLastScan(latestScan);
+      setLastScan(
+        latestScan?.completedAt ||
+          latestScan?.startedAt ||
+          null
+      );
 
       await fetchDashboard();
 
@@ -207,10 +212,10 @@ function Dashboard() {
 
           {lastScan ? (
             <p>
-              Scan status: {lastScan.status}
+              🕐 {new Date(lastScan).toLocaleString()}
             </p>
           ) : (
-            <p>Scan status: Not scanned yet</p>
+            <p>🕐 Not scanned yet</p>
           )}
         </div>
       </div>
