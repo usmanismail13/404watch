@@ -7,6 +7,7 @@ function Dashboard() {
   const [websites, setWebsites] = useState([]);
   const [errorCount, setErrorCount] = useState(0);
   const [lastScan, setLastScan] = useState(null);
+  const [total404Errors, setTotal404Errors] = useState(0);
 
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
@@ -18,13 +19,16 @@ function Dashboard() {
       setLoading(true);
       setError("");
 
-      const [websitesResponse, errorsResponse] = await Promise.all([
-        api.get("/api/websites"),
-        api.get("/api/errors"),
-      ]);
+      const [websitesResponse, errorsResponse, statsResponse] =
+        await Promise.all([
+          api.get("/api/websites"),
+          api.get("/api/errors"),
+          api.get("/api/dashboard/stats"),
+        ]);
 
       setWebsites(websitesResponse.data.websites || []);
       setErrorCount((errorsResponse.data.errors || []).length);
+      setTotal404Errors(statsResponse.data.totalErrors || 0);
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -181,7 +185,7 @@ function Dashboard() {
 
         <div className="dashboard-card">
           <h2>404 Errors</h2>
-          <p>{errorCount} errors</p>
+          <p>{total404Errors} errors</p>
         </div>
 
         <div className="dashboard-card">
