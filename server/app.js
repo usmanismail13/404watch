@@ -19,11 +19,13 @@ const authRoutes = require("./routes/authRoutes");
 const websiteRoutes = require("./routes/websiteRoutes");
 const errorRoutes = require("./routes/errorRoutes");
 const scanRoutes = require("./routes/scanRoutes");
+const dashboardRoutes = require("./routes/dashboard.routes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/websites", websiteRoutes);
 app.use("/api/errors", errorRoutes);
 app.use("/api/scans", scanRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
