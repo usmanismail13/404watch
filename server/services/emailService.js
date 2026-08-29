@@ -1,38 +1,50 @@
-require("dotenv").config();
-
 const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function send404Alert({
-  to,
-  brokenUrl,
-  sourcePage,
-  detectedAt,
+to,
+brokenUrl,
+sourcePage,
+detectedAt,
 }) {
-  return resend.emails.send({
-    from: "404Watch <alerts@yourdomain.com>",
+if (!process.env.RESEND_API_KEY) {
+throw new Error("RESEND_API_KEY is not configured");
+}
 
+if (!process.env.RESEND_FROM_EMAIL) {
+throw new Error("RESEND_FROM_EMAIL is not configured");
+}
 
-    to,
-    subject: "🚨 404 Error Detected",
-    html: `
-      <h2>🚨 404 Error Detected</h2>
+const { data, error } = await resend.emails.send({
+from: process.env.RESEND_FROM_EMAIL,
+to,
+subject: "404Watch detected a broken link",
+text: `
+404Watch detected a broken link
 
-      <p>A broken URL was detected on your website.</p>
+Broken URL:
+${brokenUrl}
 
-      <p><strong>Broken URL:</strong><br>
-      ${brokenUrl}</p>
+Source page:
+${sourcePage}
 
-      <p><strong>Source Page:</strong><br>
-      ${sourcePage}</p>
+Detected:
+${detectedAt}
 
-      <p><strong>Detected At:</strong><br>
-      ${detectedAt}</p>
-    `,
-  });
+This alert was sent by 404Watch.
+`,
+});
+
+if (error) {
+throw new Error(
+`Failed to send 404 alert: ${error.message}`
+);
+}
+
+return data;
 }
 
 module.exports = {
-  send404Alert,
+send404Alert,
 };

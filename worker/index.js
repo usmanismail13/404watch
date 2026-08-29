@@ -9,7 +9,6 @@ const { createCrawler } = require("./services/crawler");
 const { extractLinks } = require("./services/linkExtractor");
 const { send404Alert } = require("../server/services/emailService");
 
-
 console.log(
   "DATABASE_URL loaded:",
   !!process.env.DATABASE_URL
@@ -76,6 +75,7 @@ async function recordError(
       url: brokenUrl,
       sourceUrl,
       status,
+      alertSent: false,
     },
   });
 
@@ -83,12 +83,34 @@ async function recordError(
     `${status} recorded: ${brokenUrl} (source: ${sourceUrl})`
   );
 
-  await send404Alert({
-    to: website.user.email,
-    brokenUrl,
-    sourcePage: sourceUrl,
-    detectedAt: newError.detectedAt,
-  });
+  if (!newError.alertSent) {
+    try {
+      await send404Alert({
+        to: website.user.email,
+        brokenUrl,
+        sourcePage: sourceUrl,
+        detectedAt: newError.detectedAt,
+      });
+
+      await prisma.error404.update({
+        where: {
+          id: newError.id,
+        },
+        data: {
+          alertSent: true,
+        },
+      });
+
+      console.log(
+        `404 alert sent: ${brokenUrl}`
+      );
+    } catch (error) {
+      console.error(
+        `Failed to send 404 alert for ${brokenUrl}:`,
+        error.message
+      );
+    }
+  }
 }
 
 async function checkWebsite(website) {
@@ -133,9 +155,6 @@ async function checkWebsite(website) {
           `${result.brokenUrl} -> ${result.statusCode}`
         );
 
-        /*
-         * 404 response
-         */
         if (result.is404) {
           await recordError(
             website,
@@ -147,13 +166,6 @@ async function checkWebsite(website) {
           continue;
         }
 
-        /*
-         * Successful HTML page
-         *
-         * Extract all links and add them to the
-         * crawler queue. The main crawler loop will
-         * process those URLs next.
-         */
         if (result.html) {
           const links = extractLinks(
             result.html,
@@ -301,10 +313,6 @@ async function runMonitoringCycle() {
       `Found ${websites.length} websites`
     );
 
-    /*
-     * Limit the number of websites being scanned
-     * simultaneously.
-     */
     for (
       let i = 0;
       i < websites.length;
