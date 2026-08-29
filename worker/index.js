@@ -2,13 +2,13 @@ require("dotenv").config({
   path: "./.env",
 });
 
-
-
 const { PrismaClient } = require("../server/generated/prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 
 const { createCrawler } = require("./services/crawler");
 const { extractLinks } = require("./services/linkExtractor");
+const { send404Alert } = require("../server/services/emailService");
+
 
 console.log(
   "DATABASE_URL loaded:",
@@ -70,7 +70,7 @@ async function recordError(
     return;
   }
 
-  await prisma.error404.create({
+  const newError = await prisma.error404.create({
     data: {
       websiteId: website.id,
       url: brokenUrl,
@@ -82,6 +82,13 @@ async function recordError(
   console.log(
     `${status} recorded: ${brokenUrl} (source: ${sourceUrl})`
   );
+
+  await send404Alert({
+    to: website.user.email,
+    brokenUrl,
+    sourcePage: sourceUrl,
+    detectedAt: newError.detectedAt,
+  });
 }
 
 async function checkWebsite(website) {
@@ -280,6 +287,13 @@ async function runMonitoringCycle() {
     const websites = await prisma.website.findMany({
       where: {
         monitoringEnabled: true,
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+          },
+        },
       },
     });
 

@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { Resend } = require("resend");
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -10,6 +12,8 @@ async function send404Alert({
 }) {
   return resend.emails.send({
     from: "404Watch <alerts@yourdomain.com>",
+
+
     to,
     subject: "🚨 404 Error Detected",
     html: `
