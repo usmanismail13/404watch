@@ -7,7 +7,10 @@ const { PrismaPg } = require("@prisma/adapter-pg");
 
 const { createCrawler } = require("./services/crawler");
 const { extractLinks } = require("./services/linkExtractor");
-const { send404Alert } = require("../server/services/emailService");
+const {
+  send404Alert,
+  sendRecoveryAlert,
+} = require("../server/services/emailService");
 
 console.log(
   "DATABASE_URL loaded:",
@@ -164,6 +167,26 @@ async function checkWebsite(website) {
           );
 
           continue;
+        }
+
+        if (result.recovery) {
+          try {
+            await sendRecoveryAlert({
+              to: website.user.email,
+              brokenUrl: result.recovery.url,
+              sourcePage: result.sourceUrl,
+              recoveredAt: result.recovery.recoveredAt,
+            });
+
+            console.log(
+              `📧 Recovery email sent for: ${result.recovery.url}`
+            );
+          } catch (error) {
+            console.error(
+              `❌ Failed to send recovery email for ${result.recovery.url}:`,
+              error.message
+            );
+          }
         }
 
         if (result.html) {
