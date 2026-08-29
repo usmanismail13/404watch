@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 
 function Support() {
@@ -8,15 +9,33 @@ function Support() {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event) => {
+  event.preventDefault();
 
-    if (!subject.trim() || !message.trim()) {
-      return;
-    }
+  if (!subject.trim() || !message.trim()) {
+    return;
+  }
+
+  try {
+    await axios.post(
+      "http://localhost:5000/api/support",
+      {
+        subject,
+        message,
+      },
+      {
+        withCredentials: true,
+      }
+    );
 
     setSubmitted(true);
-  };
+    setSubject("");
+    setMessage("");
+  } catch (error) {
+    console.error("Support ticket error:", error);
+  }
+};
+
 
   return (
     <div className="support-page">

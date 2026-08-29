@@ -33,6 +33,8 @@ app.use("/api/websites", websiteRoutes);
 app.use("/api/errors", errorRoutes);
 app.use("/api/scans", scanRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/support", supportRoutes);
+
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
