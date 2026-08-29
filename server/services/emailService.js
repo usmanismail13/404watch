@@ -3,24 +3,24 @@ const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 async function send404Alert({
-to,
-brokenUrl,
-sourcePage,
-detectedAt,
+  to,
+  brokenUrl,
+  sourcePage,
+  detectedAt,
 }) {
-if (!process.env.RESEND_API_KEY) {
-throw new Error("RESEND_API_KEY is not configured");
-}
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
 
-if (!process.env.RESEND_FROM_EMAIL) {
-throw new Error("RESEND_FROM_EMAIL is not configured");
-}
+  if (!process.env.RESEND_FROM_EMAIL) {
+    throw new Error("RESEND_FROM_EMAIL is not configured");
+  }
 
-const { data, error } = await resend.emails.send({
-from: process.env.RESEND_FROM_EMAIL,
-to,
-subject: "404Watch detected a broken link",
-text: `
+  const { data, error } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL,
+    to,
+    subject: "404Watch detected a broken link",
+    text: `
 404Watch detected a broken link
 
 Broken URL:
@@ -34,17 +34,61 @@ ${detectedAt}
 
 This alert was sent by 404Watch.
 `,
-});
+  });
 
-if (error) {
-throw new Error(
-`Failed to send 404 alert: ${error.message}`
-);
+  if (error) {
+    throw new Error(
+      `Failed to send 404 alert: ${error.message}`
+    );
+  }
+
+  return data;
 }
 
-return data;
+async function sendRecoveryAlert({
+  to,
+  brokenUrl,
+  sourcePage,
+  recoveredAt,
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
+  if (!process.env.RESEND_FROM_EMAIL) {
+    throw new Error("RESEND_FROM_EMAIL is not configured");
+  }
+
+  const { data, error } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL,
+    to,
+    subject: "404Watch: Broken link recovered",
+    text: `
+Good news! A broken link has recovered.
+
+Broken URL:
+${brokenUrl}
+
+Source page:
+${sourcePage}
+
+Recovered:
+${recoveredAt}
+
+This alert was sent by 404Watch.
+`,
+  });
+
+  if (error) {
+    throw new Error(
+      `Failed to send recovery alert: ${error.message}`
+    );
+  }
+
+  return data;
 }
 
 module.exports = {
-send404Alert,
+  send404Alert,
+  sendRecoveryAlert,
 };

@@ -70,7 +70,7 @@ const login = async (req, res) => {
       });
     }
 
-    const token = generateToken(user.id);
+    const token = generateToken(user.id, user.email);
 
     res
       .status(200)
