@@ -1,7 +1,17 @@
 import { useState } from "react";
 
 function Support() {
+  const [subject, setSubject] = useState("");
+  const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = () => {
+    if (!subject.trim() || !message.trim()) {
+      return;
+    }
+
+    setSubmitted(true);
+  };
 
   return (
     <div className="support-page">
@@ -16,18 +26,22 @@ function Support() {
           className="support-input"
           type="text"
           placeholder="Subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
         />
 
         <textarea
           className="support-textarea"
           placeholder="Describe your issue"
           rows="6"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
         />
 
         <button
           className="support-button"
           type="button"
-          onClick={() => setSubmitted(true)}
+          onClick={handleSubmit}
         >
           Submit Ticket
         </button>
