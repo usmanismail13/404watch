@@ -8,7 +8,9 @@ function Support() {
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = () => {
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
     if (!subject.trim() || !message.trim()) {
       return;
     }
@@ -24,7 +26,7 @@ function Support() {
         How can we help you?
       </p>
 
-      <form className="support-form">
+      <form className="support-form" onSubmit={handleSubmit}>
         <input
           className="support-input"
           type="email"
@@ -39,6 +41,7 @@ function Support() {
           placeholder="Subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
+          required
         />
 
         <textarea
@@ -47,12 +50,12 @@ function Support() {
           rows="6"
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          required
         />
 
         <button
           className="support-button"
-          type="button"
-          onClick={handleSubmit}
+          type="submit"
         >
           Submit Ticket
         </button>
