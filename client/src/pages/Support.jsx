@@ -1,6 +1,9 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Support() {
+  const { user } = useAuth();
+
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -22,6 +25,14 @@ function Support() {
       </p>
 
       <form className="support-form">
+        <input
+          className="support-input"
+          type="email"
+          value={user?.email || ""}
+          placeholder="Customer email"
+          readOnly
+        />
+
         <input
           className="support-input"
           type="text"

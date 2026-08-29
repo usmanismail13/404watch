@@ -5,15 +5,20 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
+  const [user, setUser] = useState(null);
 
   const checkAuthentication = async () => {
     try {
-      await api.get("/api/auth/me");
+      const response = await api.get("/api/auth/me");
 
+      setUser(response.data.user);
       setIsAuthenticated(true);
+
       return true;
     } catch (error) {
+      setUser(null);
       setIsAuthenticated(false);
+
       return false;
     }
   };
@@ -27,6 +32,8 @@ export function AuthProvider({ children }) {
       value={{
         isAuthenticated,
         setIsAuthenticated,
+        user,
+        setUser,
         checkAuthentication,
       }}
     >
