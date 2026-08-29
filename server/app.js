@@ -24,6 +24,9 @@ const websiteRoutes = require("./routes/websiteRoutes");
 const errorRoutes = require("./routes/errorRoutes");
 const scanRoutes = require("./routes/scanRoutes");
 const dashboardRoutes = require("./routes/dashboard.routes");
+const supportRoutes = require("./routes/supportRoutes");
+
+
 
 app.use("/api/auth", authRoutes);
 app.use("/api/websites", websiteRoutes);
