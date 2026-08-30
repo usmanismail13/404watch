@@ -33,9 +33,14 @@ function Login() {
 
   return (
     <main className="login-page">
-      <section className="login-section">
+      <section
+        className="login-section"
+        aria-labelledby="login-title"
+      >
         <div className="login-container">
-          <h1 className="login-title">Login</h1>
+          <h1 className="login-title" id="login-title">
+            Login
+          </h1>
 
           <p
             className="login-description"
@@ -51,7 +56,7 @@ function Login() {
             aria-describedby="login-description"
           >
             <label className="login-label" htmlFor="email">
-              Email
+              Email address
             </label>
 
             <input
@@ -59,11 +64,12 @@ function Login() {
               type="email"
               id="email"
               name="email"
-              placeholder="Email"
+              placeholder="you@example.com"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               autoComplete="email"
               required
+              aria-required="true"
             />
 
             <label className="login-label" htmlFor="password">
@@ -75,31 +81,38 @@ function Login() {
               type="password"
               id="password"
               name="password"
-              placeholder="Password"
+              placeholder="Enter your password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
               autoComplete="current-password"
               required
+              aria-required="true"
             />
 
             <button
               className="login-button"
               type="submit"
-              aria-label="Submit login form"
             >
               Login
             </button>
           </form>
 
           {message && (
-            <p className="login-message" aria-live="polite">
+            <p
+              className="login-message"
+              role="alert"
+              aria-live="polite"
+            >
               {message}
             </p>
           )}
 
           <p className="login-register">
             Don't have an account?{" "}
-            <Link className="login-register-link" to="/register">
+            <Link
+              className="login-register-link"
+              to="/register"
+            >
               Register
             </Link>
           </p>

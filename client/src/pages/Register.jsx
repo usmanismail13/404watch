@@ -41,9 +41,15 @@ function Register() {
 
   return (
     <main className="register-page">
-      <section className="register-section">
+      <section
+        className="register-section"
+        aria-labelledby="register-title"
+      >
         <div className="register-container">
-          <h1 className="register-title">
+          <h1
+            className="register-title"
+            id="register-title"
+          >
             Create an Account
           </h1>
 
@@ -65,7 +71,7 @@ function Register() {
               className="register-label"
               htmlFor="register-email"
             >
-              Email
+              Email address
             </label>
 
             <input
@@ -73,11 +79,12 @@ function Register() {
               type="email"
               id="register-email"
               name="email"
-              placeholder="Email"
+              placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
               required
+              aria-required="true"
             />
 
             <label
@@ -92,18 +99,19 @@ function Register() {
               type="password"
               id="register-password"
               name="password"
-              placeholder="Password"
+              placeholder="Create a password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="new-password"
               required
+              aria-required="true"
             />
 
             <label
               className="register-label"
               htmlFor="register-confirm-password"
             >
-              Confirm Password
+              Confirm password
             </label>
 
             <input
@@ -111,18 +119,23 @@ function Register() {
               type="password"
               id="register-confirm-password"
               name="confirmPassword"
-              placeholder="Confirm Password"
+              placeholder="Re-enter your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               autoComplete="new-password"
               required
+              aria-required="true"
+              aria-invalid={
+                confirmPassword.length > 0 &&
+                password !== confirmPassword
+              }
             />
 
             {error && (
               <p
                 className="register-message"
                 role="alert"
-                aria-live="polite"
+                aria-live="assertive"
               >
                 {error}
               </p>
@@ -132,7 +145,7 @@ function Register() {
               className="register-button"
               type="submit"
               disabled={loading}
-              aria-label="Submit registration form"
+              aria-busy={loading}
             >
               {loading ? "Registering..." : "Register"}
             </button>

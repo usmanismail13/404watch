@@ -9,6 +9,7 @@ function Button({
   loading = false,
   onClick,
   className = "",
+  ariaLabel,
 }) {
   const classes = [
     "ui-button",
@@ -25,8 +26,16 @@ function Button({
       className={classes}
       disabled={disabled || loading}
       onClick={onClick}
+      aria-label={ariaLabel}
+      aria-busy={loading}
     >
-      {loading ? "Loading..." : children}
+      {loading ? (
+        <span role="status" aria-live="polite">
+          Loading...
+        </span>
+      ) : (
+        children
+      )}
     </button>
   );
 }

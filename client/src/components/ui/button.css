@@ -104,3 +104,11 @@
   outline: 3px solid rgb(37 99 235 / 0.35);
   outline-offset: 2px;
 }
+.ui-button:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 3px;
+}
+
+.ui-button:disabled {
+  cursor: not-allowed;
+}

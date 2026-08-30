@@ -48,44 +48,74 @@ function Support() {
   };
 
   return (
-    <div className="support-page">
+    <main
+      className="support-page"
+      aria-labelledby="support-title"
+    >
       <div className="support-card">
         <div className="support-header">
-          <div className="support-icon">🆘</div>
+          <div
+            className="support-icon"
+            aria-hidden="true"
+          >
+            🆘
+          </div>
 
           <div>
-            <p className="support-eyebrow">Customer Support</p>
+            <p className="support-eyebrow">
+              Customer Support
+            </p>
 
-            <h1 className="support-title">How can we help?</h1>
+            <h1
+              className="support-title"
+              id="support-title"
+            >
+              How can we help?
+            </h1>
 
-            <p className="support-description">
+            <p
+              className="support-description"
+              id="support-description"
+            >
               Tell us about your issue and our support team will get back to
               you as soon as possible.
             </p>
           </div>
         </div>
 
-        <form className="support-form" onSubmit={handleSubmit}>
+        <form
+          className="support-form"
+          onSubmit={handleSubmit}
+          aria-describedby="support-description"
+        >
           <div className="support-field">
-            <label className="support-label" htmlFor="support-email">
+            <span className="support-label">
               📧 Email
-            </label>
+            </span>
 
             <div
               id="support-email"
               className="support-input support-email"
+              role="status"
+              aria-label={`Customer email: ${
+                user?.email || "Loading customer email"
+              }`}
             >
               {user?.email || "Loading customer email..."}
             </div>
           </div>
 
           <div className="support-field">
-            <label className="support-label" htmlFor="support-subject">
+            <label
+              className="support-label"
+              htmlFor="support-subject"
+            >
               📝 Subject
             </label>
 
             <input
               id="support-subject"
+              name="subject"
               className="support-input"
               type="text"
               placeholder="What do you need help with?"
@@ -93,16 +123,27 @@ function Support() {
               onChange={(e) => setSubject(e.target.value)}
               disabled={loading}
               required
+              aria-required="true"
+              aria-invalid={Boolean(error)}
+              aria-describedby={
+                error
+                  ? "support-error support-description"
+                  : "support-description"
+              }
             />
           </div>
 
           <div className="support-field">
-            <label className="support-label" htmlFor="support-message">
+            <label
+              className="support-label"
+              htmlFor="support-message"
+            >
               💬 Message
             </label>
 
             <textarea
               id="support-message"
+              name="message"
               className="support-textarea"
               placeholder="Describe your issue or question..."
               rows="7"
@@ -110,22 +151,40 @@ function Support() {
               onChange={(e) => setMessage(e.target.value)}
               disabled={loading}
               required
+              aria-required="true"
+              aria-invalid={Boolean(error)}
+              aria-describedby={
+                error
+                  ? "support-error support-description"
+                  : "support-description"
+              }
             />
           </div>
 
           {error && (
-            <div className="support-error">
-              <span>❌</span>
+            <div
+              className="support-error"
+              id="support-error"
+              role="alert"
+              aria-live="assertive"
+            >
+              <span aria-hidden="true">❌</span>
               <p>{error}</p>
             </div>
           )}
 
           {submitted && (
-            <div className="support-success">
-              <span>✅</span>
+            <div
+              className="support-success"
+              role="status"
+              aria-live="polite"
+            >
+              <span aria-hidden="true">✅</span>
 
               <div>
-                <strong>Ticket submitted successfully!</strong>
+                <strong>
+                  Ticket submitted successfully!
+                </strong>
 
                 <p>
                   Your support request has been received. We'll get back to
@@ -139,12 +198,15 @@ function Support() {
             className="support-button"
             type="submit"
             disabled={loading}
+            aria-busy={loading}
           >
-            {loading ? "⏳ Sending..." : "📩 Submit Ticket"}
+            {loading
+              ? "⏳ Sending..."
+              : "📩 Submit Ticket"}
           </button>
         </form>
       </div>
-    </div>
+    </main>
   );
 }
 

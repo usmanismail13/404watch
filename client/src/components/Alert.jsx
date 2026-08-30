@@ -8,12 +8,20 @@ function Alert({
 }) {
   const validTypes = ["success", "warning", "error", "info"];
 
-  const alertType = validTypes.includes(type) ? type : "error";
+  const alertType = validTypes.includes(type)
+    ? type
+    : "error";
+
+  const liveMode =
+    alertType === "error" || alertType === "warning"
+      ? "assertive"
+      : "polite";
 
   return (
     <div
       className={`alert alert-${alertType}`}
       role="alert"
+      aria-live={liveMode}
     >
       <div className="alert-content">
         {title && (
@@ -34,7 +42,7 @@ function Alert({
           onClick={onClose}
           aria-label="Close alert"
         >
-          ×
+          <span aria-hidden="true">×</span>
         </button>
       )}
     </div>

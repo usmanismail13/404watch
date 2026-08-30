@@ -61,48 +61,82 @@ function Account() {
   };
 
   return (
-    <div className="account-page">
+    <main
+      className="account-page"
+      aria-labelledby="account-title"
+    >
       <div className="account-header">
         <span className="account-eyebrow">SETTINGS</span>
-        <h1>👤 Account Settings</h1>
+
+        <h1 id="account-title">
+          👤 Account Settings
+        </h1>
+
         <p>
           Manage your account information, security, and billing.
         </p>
       </div>
 
       {message && (
-        <div className="account-success">
-          ✅ {message}
+        <div
+          className="account-success"
+          role="status"
+          aria-live="polite"
+        >
+          <span aria-hidden="true">✅</span>
+          {message}
         </div>
       )}
 
       {error && (
-        <div className="account-error">
-          ❌ {error}
+        <div
+          className="account-error"
+          role="alert"
+          aria-live="assertive"
+        >
+          <span aria-hidden="true">❌</span>
+          {error}
         </div>
       )}
 
-      <section className="account-card">
+      <section
+        className="account-card"
+        aria-labelledby="profile-title"
+      >
         <div className="account-card-header">
           <div>
-            <h2>👤 Profile</h2>
-            <p>Manage your account information.</p>
+            <h2 id="profile-title">👤 Profile</h2>
+
+            <p>
+              Manage your account information.
+            </p>
           </div>
         </div>
 
         <div className="account-info">
           <div>
-            <span className="account-info-label">Email address</span>
-            <strong>{user?.email || "Loading..."}</strong>
+            <span className="account-info-label">
+              Email address
+            </span>
+
+            <strong>
+              {user?.email || "Loading..."}
+            </strong>
           </div>
         </div>
       </section>
 
-      <section className="account-card">
+      <section
+        className="account-card"
+        aria-labelledby="security-title"
+      >
         <div className="account-card-header">
           <div>
-            <h2>🔐 Security</h2>
-            <p>Keep your account secure by managing your password.</p>
+            <h2 id="security-title">🔐 Security</h2>
+
+            <p>
+              Keep your account secure by managing your password.
+            </p>
           </div>
         </div>
 
@@ -114,11 +148,17 @@ function Account() {
               setMessage("");
               setError("");
             }}
+            aria-expanded={showPasswordForm}
+            aria-controls="change-password-form"
           >
             🔑 Change Password
           </button>
         ) : (
-          <form onSubmit={handleChangePassword}>
+          <form
+            id="change-password-form"
+            onSubmit={handleChangePassword}
+            aria-labelledby="security-title"
+          >
             <div className="account-form-group">
               <label htmlFor="currentPassword">
                 Current Password
@@ -126,12 +166,19 @@ function Account() {
 
               <input
                 id="currentPassword"
+                name="currentPassword"
                 type="password"
                 value={currentPassword}
                 onChange={(event) =>
                   setCurrentPassword(event.target.value)
                 }
                 autoComplete="current-password"
+                required
+                aria-required="true"
+                aria-invalid={Boolean(error)}
+                aria-describedby={
+                  error ? "password-error" : undefined
+                }
               />
             </div>
 
@@ -142,15 +189,24 @@ function Account() {
 
               <input
                 id="newPassword"
+                name="newPassword"
                 type="password"
                 value={newPassword}
                 onChange={(event) =>
                   setNewPassword(event.target.value)
                 }
                 autoComplete="new-password"
+                minLength={8}
+                required
+                aria-required="true"
+                aria-invalid={
+                  newPassword.length > 0 &&
+                  newPassword.length < 8
+                }
+                aria-describedby="password-requirement"
               />
 
-              <small>
+              <small id="password-requirement">
                 Password must be at least 8 characters.
               </small>
             </div>
@@ -162,18 +218,41 @@ function Account() {
 
               <input
                 id="confirmPassword"
+                name="confirmPassword"
                 type="password"
                 value={confirmPassword}
                 onChange={(event) =>
                   setConfirmPassword(event.target.value)
                 }
                 autoComplete="new-password"
+                required
+                aria-required="true"
+                aria-invalid={
+                  confirmPassword.length > 0 &&
+                  newPassword !== confirmPassword
+                }
               />
             </div>
 
+            {error && (
+              <div
+                id="password-error"
+                role="alert"
+                aria-live="assertive"
+              >
+                {error}
+              </div>
+            )}
+
             <div className="account-form-actions">
-              <button type="submit" disabled={loading}>
-                {loading ? "⏳ Changing..." : "✅ Update Password"}
+              <button
+                type="submit"
+                disabled={loading}
+                aria-busy={loading}
+              >
+                {loading
+                  ? "⏳ Changing..."
+                  : "✅ Update Password"}
               </button>
 
               <button
@@ -195,10 +274,14 @@ function Account() {
         )}
       </section>
 
-      <section className="account-card">
+      <section
+        className="account-card"
+        aria-labelledby="billing-title"
+      >
         <div className="account-card-header">
           <div>
-            <h2>💳 Billing</h2>
+            <h2 id="billing-title">💳 Billing</h2>
+
             <p>
               Manage your subscription and billing information.
             </p>
@@ -208,6 +291,7 @@ function Account() {
         <div className="account-billing-action">
           <div>
             <strong>Subscription & Billing</strong>
+
             <span>
               View your plan, payment details, and billing options.
             </span>
@@ -220,7 +304,7 @@ function Account() {
           </Link>
         </div>
       </section>
-    </div>
+    </main>
   );
 }
 

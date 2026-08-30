@@ -149,6 +149,7 @@ function Website() {
                   type="button"
                   className="website-secondary-button"
                   onClick={() => navigate("/dashboard")}
+                  aria-label="Go back to dashboard"
                 >
                   ← Back to Dashboard
                 </button>
@@ -172,6 +173,7 @@ function Website() {
                   type="button"
                   className="website-secondary-button"
                   onClick={() => navigate("/dashboard")}
+                  aria-label="Go back to dashboard"
                 >
                   ← Back to Dashboard
                 </button>
@@ -203,20 +205,30 @@ function Website() {
               type="button"
               className="website-back-button"
               onClick={() => navigate("/dashboard")}
+              aria-label="Go back to dashboard"
             >
               ← Dashboard
             </button>
           </div>
 
           {error && (
-            <div className="alert alert-error">
+            <div
+              className="alert alert-error"
+              role="alert"
+              aria-live="assertive"
+            >
               {error}
             </div>
           )}
 
           <div className="website-main-card">
             <div className="website-info-section">
-              <div className="website-icon">🌐</div>
+              <div
+                className="website-icon"
+                aria-hidden="true"
+              >
+                🌐
+              </div>
 
               <div className="website-info">
                 <span className="website-info-label">
@@ -231,8 +243,17 @@ function Website() {
                       ? "website-status active"
                       : "website-status paused"
                   }
+                  role="status"
+                  aria-label={
+                    website.monitoringEnabled
+                      ? "Monitoring active"
+                      : "Monitoring paused"
+                  }
                 >
-                  <span className="website-status-dot">
+                  <span
+                    className="website-status-dot"
+                    aria-hidden="true"
+                  >
                     ●
                   </span>
 
@@ -253,6 +274,14 @@ function Website() {
                 }
                 onClick={handleMonitoringToggle}
                 disabled={monitoringLoading}
+                aria-busy={monitoringLoading}
+                aria-label={
+                  monitoringLoading
+                    ? "Updating monitoring status"
+                    : website.monitoringEnabled
+                      ? "Pause website monitoring"
+                      : "Enable website monitoring"
+                }
               >
                 {monitoringLoading
                   ? "⏳ Updating..."
@@ -269,6 +298,12 @@ function Website() {
                   scanLoading ||
                   !website.monitoringEnabled
                 }
+                aria-busy={scanLoading}
+                aria-label={
+                  scanLoading
+                    ? "Scanning website"
+                    : "Scan website for broken links"
+                }
               >
                 {scanLoading
                   ? "🔍 Scanning..."
@@ -278,8 +313,11 @@ function Website() {
           </div>
 
           {!website.monitoringEnabled && (
-            <div className="website-notice">
-              <span>💡</span>
+            <div
+              className="website-notice"
+              role="status"
+            >
+              <span aria-hidden="true">💡</span>
 
               <div>
                 <strong>Monitoring is paused</strong>
@@ -293,24 +331,37 @@ function Website() {
           )}
 
           {scanResult && (
-            <div className="scan-result-card">
+            <div
+              className="scan-result-card"
+              aria-labelledby="scan-results-title"
+            >
               <div className="scan-result-header">
                 <div>
                   <p className="website-eyebrow">
                     Latest Scan
                   </p>
 
-                  <h2>🔍 Scan Results</h2>
+                  <h2 id="scan-results-title">
+                    🔍 Scan Results
+                  </h2>
                 </div>
 
-                <span className="scan-complete-badge">
+                <span
+                  className="scan-complete-badge"
+                  role="status"
+                >
                   ✓ Complete
                 </span>
               </div>
 
               <div className="scan-stat-grid">
                 <div className="scan-stat">
-                  <span className="scan-stat-icon">🔗</span>
+                  <span
+                    className="scan-stat-icon"
+                    aria-hidden="true"
+                  >
+                    🔗
+                  </span>
 
                   <span className="scan-stat-label">
                     Links Checked
@@ -322,7 +373,10 @@ function Website() {
                 </div>
 
                 <div className="scan-stat">
-                  <span className="scan-stat-icon error">
+                  <span
+                    className="scan-stat-icon error"
+                    aria-hidden="true"
+                  >
                     🚨
                   </span>
 
@@ -352,7 +406,10 @@ function Website() {
                     </span>
                   </div>
 
-                  <div className="broken-links-list">
+                  <div
+                    className="broken-links-list"
+                    aria-label="Broken links"
+                  >
                     {scanResult.errors.map((item, index) => (
                       <div
                         className="broken-link-card"
@@ -363,7 +420,10 @@ function Website() {
                             {index + 1}
                           </span>
 
-                          <span className="broken-link-status">
+                          <span
+                            className="broken-link-status"
+                            role="status"
+                          >
                             HTTP {item.status}
                           </span>
                         </div>
@@ -413,7 +473,12 @@ function Website() {
     <div className="website-page">
       <div className="website-container website-add-container">
         <div className="website-add-card">
-          <div className="website-add-icon">🌐</div>
+          <div
+            className="website-add-icon"
+            aria-hidden="true"
+          >
+            🌐
+          </div>
 
           <p className="website-eyebrow">
             404Watch Monitoring
@@ -421,7 +486,10 @@ function Website() {
 
           <h1>Add Website</h1>
 
-          <p className="website-add-description">
+          <p
+            className="website-add-description"
+            id="website-form-description"
+          >
             Enter the website URL you want 404Watch to monitor
             for broken links and 404 errors.
           </p>
@@ -429,6 +497,7 @@ function Website() {
           <form
             className="website-form"
             onSubmit={handleSubmit}
+            aria-describedby="website-form-description"
           >
             <label htmlFor="url">
               Website URL
@@ -436,15 +505,31 @@ function Website() {
 
             <input
               id="url"
-              type="text"
+              name="url"
+              type="url"
+              inputMode="url"
+              autoComplete="url"
               placeholder="https://example.com"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               disabled={loading}
+              required
+              aria-required="true"
+              aria-invalid={Boolean(error)}
+              aria-describedby={
+                error
+                  ? "website-form-description website-url-error"
+                  : "website-form-description"
+              }
             />
 
             {error && (
-              <div className="alert alert-error">
+              <div
+                className="alert alert-error"
+                id="website-url-error"
+                role="alert"
+                aria-live="assertive"
+              >
                 {error}
               </div>
             )}
@@ -453,6 +538,7 @@ function Website() {
               type="submit"
               className="website-submit-button"
               disabled={loading}
+              aria-busy={loading}
             >
               {loading
                 ? "⏳ Adding Website..."
@@ -464,6 +550,7 @@ function Website() {
             type="button"
             className="website-text-button"
             onClick={() => navigate("/dashboard")}
+            aria-label="Go back to dashboard"
           >
             ← Back to Dashboard
           </button>
