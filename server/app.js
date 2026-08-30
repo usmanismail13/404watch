@@ -25,8 +25,7 @@ const errorRoutes = require("./routes/errorRoutes");
 const scanRoutes = require("./routes/scanRoutes");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const supportRoutes = require("./routes/supportRoutes");
-
-
+const adminSupportTicketsRoutes = require("./routes/admin/supportTickets");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/websites", websiteRoutes);
@@ -34,7 +33,7 @@ app.use("/api/errors", errorRoutes);
 app.use("/api/scans", scanRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/support", supportRoutes);
-
+app.use("/api/admin/support-tickets", adminSupportTicketsRoutes);
 
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "OK" });
