@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import api from "../api";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
+import Feedback from "../components/Feedback";
 import Loading from "../components/Loading.jsx";
 
 function Website() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [url, setUrl] = useState("");
   const [website, setWebsite] = useState(null);
@@ -16,6 +18,13 @@ function Website() {
   const [scanLoading, setScanLoading] = useState(false);
   const [scanResult, setScanResult] = useState(null);
   const [error, setError] = useState("");
+
+  const [feedback, setFeedback] = useState(
+    location.state?.feedback || {
+      type: "",
+      message: "",
+    }
+  );
 
   const isDetailPage = Boolean(id);
 
@@ -44,10 +53,26 @@ function Website() {
     fetchWebsite();
   }, [id]);
 
+  useEffect(() => {
+    if (location.state?.feedback) {
+      setFeedback(location.state.feedback);
+
+      navigate(location.pathname, {
+        replace: true,
+        state: {},
+      });
+    }
+  }, [location, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     setError("");
+
+    setFeedback({
+      type: "",
+      message: "",
+    });
 
     if (!url.trim()) {
       setError("Website URL is required");
@@ -63,7 +88,14 @@ function Website() {
 
       const newWebsite = response.data.website;
 
-      navigate(`/website/${newWebsite.id}`);
+      navigate(`/website/${newWebsite.id}`, {
+        state: {
+          feedback: {
+            type: "success",
+            message: "Website added successfully!",
+          },
+        },
+      });
     } catch (err) {
       setError(
         err.response?.data?.message || "Failed to add website"
@@ -82,6 +114,11 @@ function Website() {
       setMonitoringLoading(true);
       setError("");
 
+      setFeedback({
+        type: "",
+        message: "",
+      });
+
       const response = await api.patch(
         `/api/websites/${website.id}/monitoring`,
         {
@@ -90,6 +127,15 @@ function Website() {
       );
 
       setWebsite(response.data.website);
+
+      setFeedback({
+        type: response.data.website.monitoringEnabled
+          ? "success"
+          : "confirmation",
+        message: response.data.website.monitoringEnabled
+          ? "Website monitoring enabled successfully!"
+          : "🔔 Website monitoring has been paused.",
+      });
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -108,6 +154,12 @@ function Website() {
     try {
       setScanLoading(true);
       setError("");
+
+      setFeedback({
+        type: "",
+        message: "",
+      });
+
       setScanResult(null);
 
       const response = await api.post(
@@ -115,6 +167,11 @@ function Website() {
       );
 
       setScanResult(response.data);
+
+      setFeedback({
+        type: "success",
+        message: "Website scan completed successfully!",
+      });
     } catch (err) {
       setError(
         err.response?.data?.message ||
@@ -210,6 +267,19 @@ function Website() {
               ← Dashboard
             </button>
           </div>
+
+          {feedback.message && (
+            <Feedback
+              type={feedback.type}
+              message={feedback.message}
+              onClose={() =>
+                setFeedback({
+                  type: "",
+                  message: "",
+                })
+              }
+            />
+          )}
 
           {error && (
             <div

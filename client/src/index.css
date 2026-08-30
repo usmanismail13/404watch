@@ -2962,3 +2962,52 @@ button:disabled {
   transform: translateY(-1px);
   box-shadow: 0 6px 14px rgba(220, 38, 38, 0.2);
 }
+.feedback {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  margin: 16px 0;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.feedback-success {
+  color: #166534;
+  background-color: #dcfce7;
+  border-color: #86efac;
+}
+
+.feedback-warning {
+  color: #92400e;
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+}
+
+.feedback-error {
+  color: #991b1b;
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+}
+
+.feedback-confirmation {
+  color: #1e40af;
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.feedback button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 0;
+}
+
+.feedback button:hover {
+  opacity: 0.7;
+}
