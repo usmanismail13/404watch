@@ -761,28 +761,211 @@ body {
 .login-page,
 .register-page {
   width: 100%;
-  max-width: 100%;
-  padding: 16px;
+  min-height: calc(100vh - 70px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 60px 20px;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgba(37, 99, 235, 0.08),
+      transparent 40%
+    ),
+    #f9fafb;
 }
 
-.login-form {
+.login-section,
+.register-section {
   width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+  display: flex;
+  justify-content: center;
 }
 
-.login-input {
+.login-container,
+.register-container {
   width: 100%;
+  max-width: 460px;
+
+  padding: 40px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+
+  box-shadow:
+    0 20px 45px rgba(0, 0, 0, 0.08),
+    0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
+.login-title,
+.register-title {
+  margin-bottom: 10px;
+
+  color: #111827;
+
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 800;
+
+  text-align: center;
+}
+
+.login-description,
+.register-description {
+  margin-bottom: 30px;
+
+  color: #6b7280;
+
+  font-size: 15px;
+  line-height: 1.6;
+
+  text-align: center;
+}
+
+.login-form,
 .register-page form {
   width: 100%;
-  max-width: 500px;
-  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
+.login-label,
+.register-page label {
+  margin-top: 8px;
+
+  color: #374151;
+
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.login-input,
 .register-page input {
   width: 100%;
+
+  min-height: 48px;
+  padding: 0 14px;
+
+  background: #ffffff;
+
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+
+  color: #111827;
+
+  font-size: 15px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-input::placeholder,
+.register-page input::placeholder {
+  color: #9ca3af;
+}
+
+.login-input:focus,
+.register-page input:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.login-button,
+.register-page button {
+  width: 100%;
+
+  min-height: 48px;
+
+  margin-top: 14px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.login-button:hover,
+.register-page button:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.login-button:active,
+.register-page button:active {
+  transform: translateY(0);
+}
+
+.login-button:focus-visible,
+.register-page button:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
+}
+
+.login-message,
+.register-message {
+  margin-top: 18px;
+  padding: 12px 14px;
+
+  border-radius: 8px;
+
+  background: #eff6ff;
+  color: #1d4ed8;
+
+  font-size: 14px;
+  line-height: 1.5;
+
+  text-align: center;
+}
+
+.login-register,
+.register-login {
+  margin-top: 24px;
+
+  color: #6b7280;
+
+  font-size: 14px;
+
+  text-align: center;
+}
+
+.login-register-link,
+.register-login-link {
+  color: #2563eb;
+
+  font-weight: 700;
+
+  text-decoration: none;
+}
+
+.login-register-link:hover,
+.register-login-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
 }
 
 /* =========================
@@ -879,6 +1062,17 @@ body {
 
   .billing-page {
     padding: 24px 16px;
+  }
+
+  .login-page,
+  .register-page {
+    min-height: calc(100vh - 64px);
+    padding: 50px 20px;
+  }
+
+  .login-container,
+  .register-container {
+    max-width: 440px;
   }
 }
 
@@ -988,18 +1182,39 @@ body {
     font-size: 16px;
   }
 
+  /* Authentication */
+
   .login-page,
   .register-page {
-    padding: 12px;
+    min-height: calc(100vh - 64px);
+    padding: 40px 16px;
   }
 
-  .login-form,
-  .register-page form {
-    max-width: 100%;
+  .login-container,
+  .register-container {
+    padding: 30px 22px;
+    border-radius: 14px;
+  }
+
+  .login-title,
+  .register-title {
+    font-size: 28px;
+  }
+
+  .login-description,
+  .register-description {
+    margin-bottom: 24px;
   }
 
   .login-input,
   .register-page input {
+    min-height: 48px;
+    font-size: 16px;
+  }
+
+  .login-button,
+  .register-page button {
+    min-height: 48px;
     font-size: 16px;
   }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../api";
 
 function Register() {
@@ -40,50 +40,116 @@ function Register() {
   };
 
   return (
-    <div className="register-page">
-      <h1>Create an Account</h1>
+    <main className="register-page">
+      <section className="register-section">
+        <div className="register-container">
+          <h1 className="register-title">
+            Create an Account
+          </h1>
 
-      <p>Register to start monitoring your website for 404 errors.</p>
+          <p
+            className="register-description"
+            id="register-description"
+          >
+            Register to start monitoring your website for 404 errors.
+          </p>
 
-      <form id="register-form" onSubmit={handleSubmit}>
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
+          <form
+            id="register-form"
+            className="register-form"
+            onSubmit={handleSubmit}
+            autoComplete="on"
+            aria-describedby="register-description"
+          >
+            <label
+              className="register-label"
+              htmlFor="register-email"
+            >
+              Email
+            </label>
 
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+            <input
+              className="register-input"
+              type="email"
+              id="register-email"
+              name="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              required
+            />
 
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
+            <label
+              className="register-label"
+              htmlFor="register-password"
+            >
+              Password
+            </label>
 
-        {error && <p>{error}</p>}
+            <input
+              className="register-input"
+              type="password"
+              id="register-password"
+              name="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+            />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+            <label
+              className="register-label"
+              htmlFor="register-confirm-password"
+            >
+              Confirm Password
+            </label>
 
-      <p>
-        Already have an account? <a href="/login">Login</a>
-      </p>
-    </div>
+            <input
+              className="register-input"
+              type="password"
+              id="register-confirm-password"
+              name="confirmPassword"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              required
+            />
+
+            {error && (
+              <p
+                className="register-message"
+                role="alert"
+                aria-live="polite"
+              >
+                {error}
+              </p>
+            )}
+
+            <button
+              className="register-button"
+              type="submit"
+              disabled={loading}
+              aria-label="Submit registration form"
+            >
+              {loading ? "Registering..." : "Register"}
+            </button>
+          </form>
+
+          <p className="register-login">
+            Already have an account?{" "}
+            <Link
+              className="register-login-link"
+              to="/login"
+            >
+              Login
+            </Link>
+          </p>
+        </div>
+      </section>
+    </main>
   );
 }
 
