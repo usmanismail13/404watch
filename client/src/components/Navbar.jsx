@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import api from "../api";
 import { useAuth } from "../context/AuthContext";
 import "../Navbar.css";
@@ -19,24 +19,27 @@ function Navbar() {
 
   return (
     <nav>
-      <h2>404Watch</h2>
+      <Link to="/" className="navbar-brand">
+  🔍 404Watch
+</Link>
+
 
       <div>
-        <Link to="/">Home</Link>
-        <Link to="/pricing">Pricing</Link>
+        <NavLink to="/">🏠 Home</NavLink>
+        <NavLink to="/pricing">💰 Pricing</NavLink>
 
         {isAuthenticated === false && (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <NavLink to="/login">🔐 Login</NavLink>
+            <NavLink to="/register">📝 Register</NavLink>
           </>
         )}
 
         {isAuthenticated === true && (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/support">🆘 Support</Link>
-            <button onClick={handleLogout}>Logout</button>
+            <NavLink to="/dashboard">📊 Dashboard</NavLink>
+            <NavLink to="/support">🆘 Support</NavLink>
+            <button onClick={handleLogout}>🚪 Logout</button>
           </>
         )}
       </div>
