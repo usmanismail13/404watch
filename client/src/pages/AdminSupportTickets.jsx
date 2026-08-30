@@ -5,6 +5,7 @@ function AdminSupportTickets() {
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [updatingTicketId, setUpdatingTicketId] = useState(null);
 
   useEffect(() => {
     fetchTickets();
@@ -34,6 +35,45 @@ function AdminSupportTickets() {
       setError("Failed to load support tickets.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function markAsPending(ticketId) {
+    try {
+      setUpdatingTicketId(ticketId);
+
+      const response = await fetch(
+        `http://localhost:5000/api/admin/support-tickets/${ticketId}/pending`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to update ticket");
+      }
+
+      setTickets((currentTickets) =>
+        currentTickets.map((ticket) =>
+          ticket.ticketId === ticketId
+            ? { ...ticket, status: "pending" }
+            : ticket
+        )
+      );
+
+      setSelectedTicket((currentTicket) =>
+        currentTicket && currentTicket.ticketId === ticketId
+          ? { ...currentTicket, status: "pending" }
+          : currentTicket
+      );
+    } catch (err) {
+      console.error("Failed to mark ticket as pending:", err);
+      setError("Failed to mark ticket as pending.");
+    } finally {
+      setUpdatingTicketId(null);
     }
   }
 
@@ -90,7 +130,13 @@ function AdminSupportTickets() {
 
                   <td>{ticket.subject}</td>
 
-                  <td>{ticket.status}</td>
+                  <td>
+                    {ticket.status === "pending"
+                      ? "🟡 Pending"
+                      : ticket.status === "resolved"
+                      ? "✅ Resolved"
+                      : "🟢 Open"}
+                  </td>
 
                   <td>
                     {new Date(ticket.createdAt).toLocaleString()}
@@ -103,6 +149,18 @@ function AdminSupportTickets() {
                     >
                       👁️ View
                     </button>
+
+                    {ticket.status === "open" && (
+                      <button
+                        type="button"
+                        onClick={() => markAsPending(ticket.ticketId)}
+                        disabled={updatingTicketId === ticket.ticketId}
+                      >
+                        {updatingTicketId === ticket.ticketId
+                          ? "⏳ Updating..."
+                          : "🟡 Mark Pending"}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -132,7 +190,11 @@ function AdminSupportTickets() {
 
           <p>
             <strong>🟢 Status:</strong>{" "}
-            {selectedTicket.status}
+            {selectedTicket.status === "pending"
+              ? "🟡 Pending"
+              : selectedTicket.status === "resolved"
+              ? "✅ Resolved"
+              : "🟢 Open"}
           </p>
 
           <p>
@@ -145,6 +207,18 @@ function AdminSupportTickets() {
             <strong>📅 Created:</strong>{" "}
             {new Date(selectedTicket.createdAt).toLocaleString()}
           </p>
+
+          {selectedTicket.status === "open" && (
+            <button
+              type="button"
+              onClick={() => markAsPending(selectedTicket.ticketId)}
+              disabled={updatingTicketId === selectedTicket.ticketId}
+            >
+              {updatingTicketId === selectedTicket.ticketId
+                ? "⏳ Updating..."
+                : "🟡 Mark Pending"}
+            </button>
+          )}
 
           <button
             type="button"
