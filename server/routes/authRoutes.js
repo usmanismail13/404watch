@@ -1,110 +1,152 @@
 const express = require("express");
+const { body, validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const prisma = require("../lib/prisma");
 const generateToken = require("../utils/generateToken");
 const authMiddleware = require("../middleware/authMiddleware");
+const logAuthError = require("../utils/authError");
 
 const router = express.Router();
 
-router.post("/register", async (req, res) => {
-  const { email, password } = req.body;
+// ==================== REGISTER ====================
 
-  if (!email || !email.includes("@")) {
-    return res.status(400).json({
-      message: "Invalid email address",
-    });
-  }
+router.post(
+  "/register",
+  [
+    body("email")
+      .trim()
+      .isEmail()
+      .withMessage("Please provide a valid email address")
+      .normalizeEmail(),
 
-  if (!password || password.length < 8) {
-    return res.status(400).json({
-      message: "Password must be at least 8 characters long",
-    });
-  }
+    body("password")
+      .isString()
+      .isLength({ min: 8, max: 128 })
+      .withMessage("Password must be between 8 and 128 characters long"),
+  ],
+  async (req, res) => {
+    const { email, password } = req.body;
 
-  try {
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const errors = validationResult(req);
 
-    const user = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-      },
-    });
-
-    res.status(201).json({
-      message: "User registered successfully",
-      user: {
-        id: user.id,
-        email: user.email,
-      },
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.status(500).json({
-      message: "Registration failed",
-    });
-  }
-});
-
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      message: "Email and password are required",
-    });
-  }
-
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    if (!user) {
-      return res.status(401).json({
-        message: "Invalid email or password",
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
       });
     }
 
-    const passwordMatches = await bcrypt.compare(
-      password,
-      user.password
-    );
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
 
-    if (!passwordMatches) {
-      return res.status(401).json({
-        message: "Invalid email or password",
+      const user = await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+        },
       });
-    }
 
-    const token = generateToken(user.id, user.email);
-
-    res
-      .status(200)
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      })
-      .json({
-        message: "Login successful",
+      return res.status(201).json({
+        message: "User registered successfully",
         user: {
           id: user.id,
           email: user.email,
         },
       });
-  } catch (error) {
-    console.error(error);
+    } catch (error) {
+      if (error.code === "P2002") {
+        return res.status(409).json({
+          message: "An account with this email already exists",
+        });
+      }
 
-    res.status(500).json({
-      message: "Login failed",
-    });
+      logAuthError("registration", error);
+
+      return res.status(500).json({
+        message: "Registration failed",
+      });
+    }
   }
-});
+);
+
+// ==================== LOGIN ====================
+
+router.post(
+  "/login",
+  [
+    body("email")
+      .trim()
+      .isEmail()
+      .withMessage("Please provide a valid email address")
+      .normalizeEmail(),
+
+    body("password")
+      .isString()
+      .isLength({ min: 1, max: 128 })
+      .withMessage("Invalid password"),
+  ],
+  async (req, res) => {
+    const { email, password } = req.body;
+
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
+      });
+    }
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        return res.status(401).json({
+          message: "Invalid email or password",
+        });
+      }
+
+      const passwordMatches = await bcrypt.compare(
+        password,
+        user.password
+      );
+
+      if (!passwordMatches) {
+        return res.status(401).json({
+          message: "Invalid email or password",
+        });
+      }
+
+      const token = generateToken(user.id, user.email);
+
+      return res
+        .status(200)
+        .cookie("token", token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        })
+        .json({
+          message: "Login successful",
+          user: {
+            id: user.id,
+            email: user.email,
+          },
+        });
+    } catch (error) {
+      logAuthError("login", error);
+
+      return res.status(500).json({
+        message: "Login failed",
+      });
+    }
+  }
+);
+
+// ==================== CURRENT USER ====================
 
 router.get("/me", authMiddleware, async (req, res) => {
   try {
@@ -124,88 +166,105 @@ router.get("/me", authMiddleware, async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       user,
     });
   } catch (error) {
-    console.error(error);
+    logAuthError("current-user", error);
 
-    res.status(500).json({
+    return res.status(500).json({
       message: "Failed to get current user",
     });
   }
 });
 
-router.post("/change-password", authMiddleware, async (req, res) => {
-  const { currentPassword, newPassword } = req.body;
+// ==================== CHANGE PASSWORD ====================
 
-  if (!currentPassword || !newPassword) {
-    return res.status(400).json({
-      message: "Current password and new password are required",
-    });
-  }
+router.post(
+  "/change-password",
+  authMiddleware,
+  [
+    body("currentPassword")
+      .isString()
+      .isLength({ min: 1, max: 128 })
+      .withMessage("Current password is required"),
 
-  if (newPassword.length < 8) {
-    return res.status(400).json({
-      message: "New password must be at least 8 characters long",
-    });
-  }
+    body("newPassword")
+      .isString()
+      .isLength({ min: 8, max: 128 })
+      .withMessage(
+        "New password must be between 8 and 128 characters long"
+      ),
+  ],
+  async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
 
-  if (currentPassword === newPassword) {
-    return res.status(400).json({
-      message: "New password must be different from your current password",
-    });
-  }
+    const errors = validationResult(req);
 
-  try {
-    const user = await prisma.user.findUnique({
-      where: {
-        id: req.user.userId,
-      },
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        message: "Validation failed",
       });
     }
 
-    const passwordMatches = await bcrypt.compare(
-      currentPassword,
-      user.password
-    );
-
-    if (!passwordMatches) {
-      return res.status(401).json({
-        message: "Current password is incorrect",
+    if (currentPassword === newPassword) {
+      return res.status(400).json({
+        message: "New password must be different from your current password",
       });
     }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    try {
+      const user = await prisma.user.findUnique({
+        where: {
+          id: req.user.userId,
+        },
+      });
 
-    await prisma.user.update({
-      where: {
-        id: user.id,
-      },
-      data: {
-        password: hashedPassword,
-      },
-    });
+      if (!user) {
+        return res.status(404).json({
+          message: "User not found",
+        });
+      }
 
-    res.status(200).json({
-      message: "Password changed successfully",
-    });
-  } catch (error) {
-    console.error(error);
+      const passwordMatches = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
 
-    res.status(500).json({
-      message: "Failed to change password",
-    });
+      if (!passwordMatches) {
+        return res.status(401).json({
+          message: "Current password is incorrect",
+        });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      await prisma.user.update({
+        where: {
+          id: user.id,
+        },
+        data: {
+          password: hashedPassword,
+        },
+      });
+
+      return res.status(200).json({
+        message: "Password changed successfully",
+      });
+    } catch (error) {
+      logAuthError("change-password", error);
+
+      return res.status(500).json({
+        message: "Failed to change password",
+      });
+    }
   }
-});
+);
+
+// ==================== LOGOUT ====================
 
 router.post("/logout", (req, res) => {
-  res
+  return res
     .status(200)
     .clearCookie("token", {
       httpOnly: true,
