@@ -35,55 +35,159 @@ button:disabled {
    ========================= */
 
 .support-page {
-  max-width: 600px;
-  margin: 60px auto;
-  padding: 20px;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 50px 20px 70px;
 }
 
 .support-title {
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  color: #111827;
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 800;
 }
 
 .support-description {
   margin-bottom: 30px;
+  color: #6b7280;
+  font-size: 16px;
+  line-height: 1.6;
 }
 
 .support-form {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 20px;
+  padding: 30px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.06),
+    0 3px 10px rgba(0, 0, 0, 0.03);
+}
+
+.support-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.support-label {
+  color: #374151;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .support-input,
 .support-textarea {
   width: 100%;
-  padding: 12px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 15px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.support-input::placeholder,
+.support-textarea::placeholder {
+  color: #9ca3af;
+}
+
+.support-input:focus,
+.support-textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.support-email {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+  background: #f9fafb;
+  color: #6b7280;
+  cursor: default;
+}
+
+.support-textarea {
+  min-height: 150px;
+  resize: vertical;
 }
 
 .support-button {
-  padding: 12px;
+  width: 100%;
+  min-height: 48px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.support-button:hover:not(:disabled) {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.support-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.support-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.support-success,
+.support-error {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .support-success {
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 6px;
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: #ecfdf5;
+  border: 1px solid #bbf7d0;
+  color: #047857;
+}
+
+.support-error {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
 }
 
 @media (max-width: 768px) {
   .support-page {
-    margin: 40px auto;
-    padding: 20px 16px;
+    padding: 40px 16px 55px;
+  }
+
+  .support-form {
+    padding: 24px;
   }
 }
 
 @media (max-width: 480px) {
   .support-page {
-    margin: 30px auto;
-    padding: 16px 12px;
+    padding: 30px 12px 45px;
   }
 
   .support-title {
@@ -91,12 +195,22 @@ button:disabled {
   }
 
   .support-description {
-    margin-bottom: 20px;
+    margin-bottom: 22px;
+    font-size: 15px;
+  }
+
+  .support-form {
+    padding: 20px 16px;
+    border-radius: 12px;
   }
 
   .support-input,
-  .support-textarea,
+  .support-textarea {
+    font-size: 16px;
+  }
+
   .support-button {
+    min-height: 50px;
     font-size: 16px;
   }
 }
@@ -1875,6 +1989,7 @@ button:disabled {
     padding: 16px 12px;
   }
 }
+
 /* =========================
    Website Management
    ========================= */
