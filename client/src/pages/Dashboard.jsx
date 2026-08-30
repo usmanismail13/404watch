@@ -12,12 +12,11 @@ function Dashboard() {
   const [recoveredErrors, setRecoveredErrors] = useState(0);
   const [activeErrors, setActiveErrors] = useState(0);
 
-  // 🚨 Phase 9.10 — Selected error filter
   const [errorFilter, setErrorFilter] = useState("all");
 
-  // 📄 Phase 9.11 — Error pagination
   const [errorPage, setErrorPage] = useState(1);
   const [errorTotalPages, setErrorTotalPages] = useState(1);
+
   const errorLimit = 10;
 
   const [loading, setLoading] = useState(true);
@@ -26,26 +25,7 @@ function Dashboard() {
   const [scanMessage, setScanMessage] = useState("");
 
   // =========================================================
-  // 📄 Phase 9.11 — Pagination controls
-  // =========================================================
-
-  const handlePreviousErrorPage = () => {
-    setErrorPage((currentPage) =>
-      Math.max(currentPage - 1, 1)
-    );
-  };
-
-  const handleNextErrorPage = () => {
-    setErrorPage((currentPage) =>
-      Math.min(
-        currentPage + 1,
-        errorTotalPages
-      )
-    );
-  };
-
-  // =========================================================
-  // 📊 Fetch dashboard data
+  // 📊 Fetch Dashboard
   // =========================================================
 
   const fetchDashboard = useCallback(async () => {
@@ -71,15 +51,27 @@ function Dashboard() {
       const fetchedErrors =
         errorsResponse.data.errors || [];
 
-      const stats = statsResponse.data || {};
+      const stats =
+        statsResponse.data || {};
 
       setWebsites(fetchedWebsites);
       setErrors(fetchedErrors);
 
-      setTotal404Errors(stats.totalErrors || 0);
-      setRecoveredErrors(stats.recoveredErrors || 0);
-      setActiveErrors(stats.activeErrors || 0);
-      setLastScan(stats.lastScan || null);
+      setTotal404Errors(
+        stats.totalErrors || 0
+      );
+
+      setRecoveredErrors(
+        stats.recoveredErrors || 0
+      );
+
+      setActiveErrors(
+        stats.activeErrors || 0
+      );
+
+      setLastScan(
+        stats.lastScan || null
+      );
 
       setErrorTotalPages(
         errorsResponse.data.totalPages || 1
@@ -99,19 +91,28 @@ function Dashboard() {
   }, [fetchDashboard]);
 
   // =========================================================
-  // 🔍 Scan all monitored websites
+  // 🔄 Refresh
+  // =========================================================
+
+  const handleRefresh = async () => {
+    await fetchDashboard();
+  };
+
+  // =========================================================
+  // 🔍 Scan Websites
   // =========================================================
 
   const handleScanAll = async () => {
-    const monitoredWebsites = websites.filter(
-      (website) => website.monitoringEnabled
-    );
+    const monitoredWebsites =
+      websites.filter(
+        (website) =>
+          website.monitoringEnabled
+      );
 
     if (monitoredWebsites.length === 0) {
       setScanMessage(
         "No websites with monitoring enabled."
       );
-
       return;
     }
 
@@ -125,14 +126,16 @@ function Dashboard() {
 
       for (const website of monitoredWebsites) {
         try {
-          const response = await api.post(
-            `/api/scans/${website.id}`
-          );
+          const response =
+            await api.post(
+              `/api/scans/${website.id}`
+            );
 
           totalErrors +=
             response.data.errorsFound || 0;
 
-          latestScan = response.data.scan;
+          latestScan =
+            response.data.scan;
         } catch (err) {
           console.error(
             `Failed to scan ${website.url}:`,
@@ -166,30 +169,26 @@ function Dashboard() {
   };
 
   // =========================================================
-  // 🔄 Refresh dashboard
+  // 🗑️ Delete Website
   // =========================================================
 
-  const handleRefresh = async () => {
-    await fetchDashboard();
-  };
-
-  // =========================================================
-  // 🗑️ Delete website
-  // =========================================================
-
-  const handleDeleteWebsite = async (websiteId) => {
-    const website = websites.find(
-      (currentWebsite) =>
-        currentWebsite.id === websiteId
-    );
+  const handleDeleteWebsite = async (
+    websiteId
+  ) => {
+    const website =
+      websites.find(
+        (currentWebsite) =>
+          currentWebsite.id === websiteId
+      );
 
     if (!website) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${website.url}?`
-    );
+    const confirmed =
+      window.confirm(
+        `Are you sure you want to delete ${website.url}?`
+      );
 
     if (!confirmed) {
       return;
@@ -203,11 +202,13 @@ function Dashboard() {
         `/api/websites/${websiteId}`
       );
 
-      setWebsites((currentWebsites) =>
-        currentWebsites.filter(
-          (currentWebsite) =>
-            currentWebsite.id !== websiteId
-        )
+      setWebsites(
+        (currentWebsites) =>
+          currentWebsites.filter(
+            (currentWebsite) =>
+              currentWebsite.id !==
+              websiteId
+          )
       );
 
       setScanMessage(
@@ -222,100 +223,135 @@ function Dashboard() {
   };
 
   // =========================================================
-  // 🚨 Phase 9.10 — Determine error status
+  // 🚨 Error Helpers
   // =========================================================
 
-  const isRecoveredError = (errorItem) => {
+  const isRecoveredError = (
+    errorItem
+  ) => {
     return (
-      String(errorItem.status).toLowerCase() ===
+      String(errorItem.status)
+        .toLowerCase() ===
       "recovered"
     );
   };
 
-  const isActiveError = (errorItem) => {
-    return !isRecoveredError(errorItem);
+  const isActiveError = (
+    errorItem
+  ) => {
+    return !isRecoveredError(
+      errorItem
+    );
   };
 
   // =========================================================
-  // 🔢 Phase 9.10 — Error counts
+  // 🎛️ Filter Errors
   // =========================================================
 
-  const allErrorCount = errors.length;
+  const allErrorCount =
+    errors.length;
 
-  const activeErrorCount = errors.filter(
-    (errorItem) => isActiveError(errorItem)
-  ).length;
+  const activeErrorCount =
+    errors.filter(
+      (errorItem) =>
+        isActiveError(errorItem)
+    ).length;
 
-  const recoveredErrorCount = errors.filter(
-    (errorItem) => isRecoveredError(errorItem)
-  ).length;
+  const recoveredErrorCount =
+    errors.filter(
+      (errorItem) =>
+        isRecoveredError(errorItem)
+    ).length;
 
-  // =========================================================
-  // 🔍 Phase 9.10 — Filter errors
-  // =========================================================
-
-  const filteredErrors = errors.filter(
-    (errorItem) => {
-      if (errorFilter === "all") {
-        return true;
+  const filteredErrors =
+    errors.filter((errorItem) => {
+      if (
+        errorFilter === "active"
+      ) {
+        return isActiveError(
+          errorItem
+        );
       }
 
-      if (errorFilter === "active") {
-        return isActiveError(errorItem);
-      }
-
-      if (errorFilter === "recovered") {
-        return isRecoveredError(errorItem);
+      if (
+        errorFilter === "recovered"
+      ) {
+        return isRecoveredError(
+          errorItem
+        );
       }
 
       return true;
-    }
-  );
+    });
 
   // =========================================================
-  // 📊 Phase 9.10 — Filter result message
+  // 📄 Pagination
   // =========================================================
 
-  const filteredResultMessage =
-    errorFilter === "all"
-      ? `Showing ${filteredErrors.length} error${
-          filteredErrors.length === 1
-            ? ""
-            : "s"
-        }`
-      : errorFilter === "active"
-      ? `Showing ${filteredErrors.length} active error${
-          filteredErrors.length === 1
-            ? ""
-            : "s"
-        }`
-      : `Showing ${filteredErrors.length} recovered error${
-          filteredErrors.length === 1
-            ? ""
-            : "s"
-        }`;
+  const handlePreviousErrorPage =
+    () => {
+      setErrorPage(
+        (currentPage) =>
+          Math.max(
+            currentPage - 1,
+            1
+          )
+      );
+    };
+
+  const handleNextErrorPage =
+    () => {
+      setErrorPage(
+        (currentPage) =>
+          Math.min(
+            currentPage + 1,
+            errorTotalPages
+          )
+      );
+    };
 
   return (
     <div className="dashboard">
 
       {/* =====================================================
-          🏠 Dashboard Header
+          ✨ HERO HEADER
       ===================================================== */}
 
-      <div className="dashboard-header">
+      <section className="dashboard-hero">
 
-        <div>
-          <h1>Dashboard</h1>
-          <p>Welcome to 404Watch.</p>
+        <div className="dashboard-hero-glow"></div>
+
+        <div className="dashboard-hero-content">
+
+          <div className="dashboard-hero-badge">
+            <span className="hero-status-dot"></span>
+            404Watch Monitoring
+          </div>
+
+          <h1>
+            Website Health
+            <span> Dashboard</span>
+          </h1>
+
+          <p>
+            Monitor your websites, discover
+            broken links, and keep your digital
+            presence healthy.
+          </p>
+
         </div>
 
-        <div>
+        <div className="dashboard-hero-actions">
 
           <button
             type="button"
+            className="hero-refresh-button"
             onClick={handleRefresh}
-            disabled={loading || scanning}
+            disabled={
+              loading || scanning
+            }
           >
+            <span>↻</span>
             {loading
               ? "Refreshing..."
               : "Refresh"}
@@ -323,12 +359,13 @@ function Dashboard() {
 
           <button
             type="button"
+            className="hero-scan-button"
             onClick={handleScanAll}
-            disabled={loading || scanning}
-            style={{
-              marginLeft: "10px",
-            }}
+            disabled={
+              loading || scanning
+            }
           >
+            <span>⚡</span>
             {scanning
               ? "Scanning..."
               : "Scan Websites"}
@@ -336,181 +373,327 @@ function Dashboard() {
 
         </div>
 
-      </div>
+      </section>
 
       {/* =====================================================
-          ❌ Error message
+          ❌ ERROR MESSAGE
       ===================================================== */}
 
       {error && (
-        <p style={{ color: "red" }}>
+        <div className="dashboard-alert dashboard-alert-error">
+          <span>⚠️</span>
           {error}
-        </p>
+        </div>
       )}
 
       {/* =====================================================
-          ✅ Scan message
+          ✅ SUCCESS MESSAGE
       ===================================================== */}
 
       {scanMessage && (
-        <p style={{ color: "green" }}>
+        <div className="dashboard-alert dashboard-alert-success">
+          <span>✓</span>
           {scanMessage}
-        </p>
+        </div>
       )}
 
       {/* =====================================================
-          📊 Dashboard Statistics
+          📊 STATISTICS
       ===================================================== */}
 
-      <div className="dashboard-grid">
+      <section className="dashboard-stats">
 
-        <div className="dashboard-card">
-          <h2>Monitored Websites</h2>
-          <p>
-            {websites.length} websites
-          </p>
-        </div>
+        <div className="stat-card stat-card-blue">
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              🌐
+            </div>
 
-        <div className="dashboard-card">
-          <h2>404 Errors</h2>
-          <p>
-            {total404Errors} errors
-          </p>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Recovered Errors</h2>
-          <p>
-            {recoveredErrors} errors
-          </p>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Active Errors</h2>
-          <p>
-            {activeErrors} errors
-          </p>
-        </div>
-
-        <div className="dashboard-card">
-          <h2>Last Scan</h2>
-
-          {lastScan ? (
-            <p>
-              🕐{" "}
-              {new Date(
-                lastScan
-              ).toLocaleString()}
-            </p>
-          ) : (
-            <p>
-              🕐 Not scanned yet
-            </p>
-          )}
-        </div>
-
-      </div>
-
-      {/* =====================================================
-          🌐 Monitored Websites
-      ===================================================== */}
-
-      <div className="dashboard-websites">
-
-        <h2>Monitored Websites</h2>
-
-        {loading ? (
-
-          <p>
-            Loading websites...
-          </p>
-
-        ) : websites.length === 0 ? (
-
-          <p>
-            No websites are being
-            monitored yet.
-          </p>
-
-        ) : (
-
-          <div className="website-list">
-
-            {websites.map((website) => (
-
-              <div
-                className="website-item"
-                key={website.id}
-              >
-
-                <div>
-
-                  <h3>
-                    {website.url}
-                  </h3>
-
-                  <span
-                    className={
-                      website.monitoringEnabled
-                        ? "monitoring-status monitoring-status-enabled"
-                        : "monitoring-status monitoring-status-disabled"
-                    }
-                  >
-
-                    <span className="monitoring-status-dot"></span>
-
-                    {website.monitoringEnabled
-                      ? "Monitoring Enabled"
-                      : "Monitoring Disabled"}
-
-                  </span>
-
-                </div>
-
-                <div className="website-actions">
-
-                  <Link
-                    to={`/website/${website.id}`}
-                  >
-                    View Website
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleDeleteWebsite(
-                        website.id
-                      )
-                    }
-                  >
-                    Delete
-                  </button>
-
-                </div>
-
-              </div>
-
-            ))}
-
+            <span className="stat-label">
+              WEBSITES
+            </span>
           </div>
 
-        )}
+          <div className="stat-value">
+            {websites.length}
+          </div>
 
-      </div>
+          <div className="stat-description">
+            Websites under monitoring
+          </div>
+
+          <div className="stat-glow"></div>
+        </div>
+
+        <div className="stat-card stat-card-orange">
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              🔗
+            </div>
+
+            <span className="stat-label">
+              TOTAL ERRORS
+            </span>
+          </div>
+
+          <div className="stat-value">
+            {total404Errors}
+          </div>
+
+          <div className="stat-description">
+            404 errors detected
+          </div>
+
+          <div className="stat-glow"></div>
+        </div>
+
+        <div className="stat-card stat-card-green">
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              ✓
+            </div>
+
+            <span className="stat-label">
+              RECOVERED
+            </span>
+          </div>
+
+          <div className="stat-value">
+            {recoveredErrors}
+          </div>
+
+          <div className="stat-description">
+            Successfully recovered
+          </div>
+
+          <div className="stat-glow"></div>
+        </div>
+
+        <div className="stat-card stat-card-red">
+          <div className="stat-card-top">
+            <div className="stat-icon">
+              !
+            </div>
+
+            <span className="stat-label">
+              ACTIVE
+            </span>
+          </div>
+
+          <div className="stat-value">
+            {activeErrors}
+          </div>
+
+          <div className="stat-description">
+            Errors requiring attention
+          </div>
+
+          <div className="stat-glow"></div>
+        </div>
+
+      </section>
 
       {/* =====================================================
-          🚨 Phase 9.10 — Broken URLs
+          🕐 LAST SCAN
       ===================================================== */}
 
-      <div className="dashboard-errors">
+      <section className="last-scan-banner">
 
-        <h2>
-          🔗 Broken URLs
-        </h2>
+        <div className="last-scan-icon">
+          🕐
+        </div>
 
-        {/* ===================================================
-            🎛️ Error Filter Buttons
-        =================================================== */}
+        <div className="last-scan-content">
+          <span>
+            LAST SYSTEM SCAN
+          </span>
+
+          <strong>
+            {lastScan
+              ? new Date(
+                  lastScan
+                ).toLocaleString()
+              : "Not scanned yet"}
+          </strong>
+        </div>
+
+        <div className="last-scan-status">
+          <span></span>
+          System Ready
+        </div>
+
+      </section>
+
+      {/* =====================================================
+          🌐 WEBSITES
+      ===================================================== */}
+
+      <section className="dashboard-panel">
+
+        <div className="panel-header">
+
+          <div>
+            <div className="panel-title-row">
+              <div className="panel-title-icon">
+                🌐
+              </div>
+
+              <h2>
+                Monitored Websites
+              </h2>
+            </div>
+
+            <p>
+              Manage the websites currently
+              being monitored by 404Watch.
+            </p>
+          </div>
+
+          <span className="panel-count">
+            {websites.length}{" "}
+            {websites.length === 1
+              ? "website"
+              : "websites"}
+          </span>
+
+        </div>
+
+        {loading ? (
+          <div className="dashboard-loading">
+            <div className="loading-spinner"></div>
+            Loading websites...
+          </div>
+        ) : websites.length === 0 ? (
+          <div className="dashboard-empty-state">
+
+            <div className="empty-icon">
+              🌐
+            </div>
+
+            <h3>
+              No websites yet
+            </h3>
+
+            <p>
+              Add your first website to start
+              monitoring broken links.
+            </p>
+
+            <Link
+              to="/website"
+              className="primary-action"
+            >
+              + Add Website
+            </Link>
+
+          </div>
+        ) : (
+          <div className="website-list">
+
+            {websites.map(
+              (website) => (
+                <div
+                  className="website-item"
+                  key={website.id}
+                >
+
+                  <div className="website-info">
+
+                    <div className="website-icon">
+                      🌐
+                    </div>
+
+                    <div className="website-details">
+
+                      <h3>
+                        {website.url}
+                      </h3>
+
+                      <span
+                        className={
+                          website.monitoringEnabled
+                            ? "monitoring-status monitoring-enabled"
+                            : "monitoring-status monitoring-disabled"
+                        }
+                      >
+                        <span className="status-dot"></span>
+
+                        {website.monitoringEnabled
+                          ? "Monitoring Enabled"
+                          : "Monitoring Disabled"}
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                  <div className="website-actions">
+
+                    <Link
+                      to={`/website/${website.id}`}
+                      className="website-view-button"
+                    >
+                      View
+                      <span>→</span>
+                    </Link>
+
+                    <button
+                      type="button"
+                      className="website-delete-button"
+                      onClick={() =>
+                        handleDeleteWebsite(
+                          website.id
+                        )
+                      }
+                    >
+                      Delete
+                    </button>
+
+                  </div>
+
+                </div>
+              )
+            )}
+
+          </div>
+        )}
+
+      </section>
+
+      {/* =====================================================
+          🚨 BROKEN URLS
+      ===================================================== */}
+
+      <section className="dashboard-panel">
+
+        <div className="panel-header">
+
+          <div>
+            <div className="panel-title-row">
+
+              <div className="panel-title-icon panel-title-icon-danger">
+                🔗
+              </div>
+
+              <h2>
+                Broken URLs
+              </h2>
+
+            </div>
+
+            <p>
+              Track active and recovered
+              broken links across your websites.
+            </p>
+          </div>
+
+          <span className="panel-count panel-count-danger">
+            {total404Errors} total
+          </span>
+
+        </div>
+
+        {/* FILTERS */}
 
         <div className="error-filters">
 
@@ -518,195 +701,226 @@ function Dashboard() {
             type="button"
             className={
               errorFilter === "all"
-                ? "active"
-                : ""
+                ? "filter-button active"
+                : "filter-button"
             }
             onClick={() =>
               setErrorFilter("all")
             }
           >
-            📋 All ({allErrorCount})
+            All
+            <span>
+              {allErrorCount}
+            </span>
           </button>
 
           <button
             type="button"
             className={
               errorFilter === "active"
-                ? "active"
-                : ""
+                ? "filter-button active filter-active"
+                : "filter-button"
             }
             onClick={() =>
               setErrorFilter("active")
             }
           >
-            🔴 Active ({activeErrorCount})
+            Active
+            <span>
+              {activeErrorCount}
+            </span>
           </button>
 
           <button
             type="button"
             className={
               errorFilter === "recovered"
-                ? "active"
-                : ""
+                ? "filter-button active filter-recovered"
+                : "filter-button"
             }
             onClick={() =>
               setErrorFilter("recovered")
             }
           >
-            🟢 Recovered (
-            {recoveredErrorCount}
-            )
+            Recovered
+            <span>
+              {recoveredErrorCount}
+            </span>
           </button>
 
         </div>
 
-        {/* ===================================================
-            📊 Filtered result count
-        =================================================== */}
-
         {!loading &&
           errors.length > 0 && (
-            <p className="filtered-results-count">
-              {filteredResultMessage}
-            </p>
+            <div className="filtered-results-count">
+              Showing{" "}
+              <strong>
+                {filteredErrors.length}
+              </strong>{" "}
+              result
+              {filteredErrors.length === 1
+                ? ""
+                : "s"}
+            </div>
           )}
 
-        {/* ===================================================
-            📡 Loading
-        =================================================== */}
-
         {loading ? (
-
-          <p>
+          <div className="dashboard-loading">
+            <div className="loading-spinner"></div>
             Loading broken URLs...
-          </p>
-
+          </div>
         ) : errors.length === 0 ? (
+          <div className="dashboard-empty-state dashboard-success-empty">
 
-          <p>
-            No broken URLs found.
-          </p>
+            <div className="empty-icon empty-icon-success">
+              ✓
+            </div>
 
+            <h3>
+              Everything looks good
+            </h3>
+
+            <p>
+              No broken URLs have been detected.
+              Your monitored websites are healthy.
+            </p>
+
+          </div>
         ) : filteredErrors.length === 0 ? (
+          <div className="dashboard-empty-state">
 
-          <p>
-            {errorFilter === "all"
-              ? "No broken URLs found."
-              : errorFilter === "active"
-              ? "No active 404 errors found."
-              : "No recovered 404 errors found."}
-          </p>
+            <div className="empty-icon">
+              🔎
+            </div>
 
+            <h3>
+              No matching errors
+            </h3>
+
+            <p>
+              There are no errors matching
+              the selected filter.
+            </p>
+
+          </div>
         ) : (
-
           <>
-            {/* =============================================
-                🔗 Error List
-            ============================================= */}
-
             <div className="error-list">
 
               {filteredErrors.map(
                 (errorItem) => {
 
-                  const isRecovered =
+                  const recovered =
                     isRecoveredError(
                       errorItem
                     );
 
                   return (
-
                     <div
-                      className={`error-item ${
-                        isRecovered
-                          ? "error-item-recovered"
-                          : "error-item-active"
-                      }`}
+                      className={
+                        recovered
+                          ? "error-item error-item-recovered"
+                          : "error-item error-item-active"
+                      }
                       key={errorItem.id}
                     >
 
-                      {/* =================================
-                          🚨 Error Header
-                      ================================= */}
-
                       <div className="error-item-header">
 
-                        <h3>
-                          🔗{" "}
-                          {errorItem.url}
-                        </h3>
+                        <div className="error-url">
+
+                          <span className="error-url-icon">
+                            {recovered
+                              ? "✓"
+                              : "!"}
+                          </span>
+
+                          <h3>
+                            {errorItem.url}
+                          </h3>
+
+                        </div>
 
                         <span
                           className={
-                            isRecovered
+                            recovered
                               ? "error-status error-status-recovered"
                               : "error-status error-status-active"
                           }
                         >
-                          {isRecovered
-                            ? "🟢 Recovered"
-                            : "🔴 Active"}
+                          {recovered
+                            ? "Recovered"
+                            : "Active"}
                         </span>
 
                       </div>
 
-                      {/* =================================
-                          🌐 Website
-                      ================================= */}
+                      <div className="error-details">
 
-                      <p>
-                        🌐 Website:{" "}
-                        {errorItem.website
-                          ?.url ||
-                          "Unknown"}
-                      </p>
+                        <div className="error-detail">
+                          <span>
+                            WEBSITE
+                          </span>
 
-                      {/* =================================
-                          📄 Source page
-                      ================================= */}
+                          <strong>
+                            {errorItem.website?.url ||
+                              "Unknown"}
+                          </strong>
+                        </div>
 
-                      <p>
-                        📄 Source Page:{" "}
-                        {errorItem.sourceUrl ||
-                          "Unknown"}
-                      </p>
+                        <div className="error-detail">
+                          <span>
+                            SOURCE PAGE
+                          </span>
 
-                      {/* =================================
-                          🚨 HTTP Status
-                      ================================= */}
+                          <strong>
+                            {errorItem.sourceUrl ||
+                              "Unknown"}
+                          </strong>
+                        </div>
 
-                      <p>
-                        🚨 Status:{" "}
-                        {errorItem.status}
-                      </p>
+                        <div className="error-detail">
+                          <span>
+                            STATUS
+                          </span>
 
-                      {/* =================================
-                          🕐 Detection time
-                      ================================= */}
+                          <strong
+                            className={
+                              recovered
+                                ? "http-badge http-recovered"
+                                : "http-badge http-error"
+                            }
+                          >
+                            {recovered
+                              ? "Recovered"
+                              : errorItem.status}
+                          </strong>
+                        </div>
 
-                      <p>
-                        🕐 Detected:{" "}
-                        {errorItem.detectedAt
-                          ? new Date(
-                              errorItem.detectedAt
-                            ).toLocaleString()
-                          : "Unknown"}
-                      </p>
+                        <div className="error-detail">
+                          <span>
+                            DETECTED
+                          </span>
+
+                          <strong>
+                            {errorItem.detectedAt
+                              ? new Date(
+                                  errorItem.detectedAt
+                                ).toLocaleString()
+                              : "Unknown"}
+                          </strong>
+                        </div>
+
+                      </div>
 
                     </div>
-
                   );
                 }
               )}
 
             </div>
 
-            {/* =============================================
-                📄 Phase 9.11 — Pagination Controls
-            ============================================= */}
-
             {errorTotalPages > 1 && (
-
               <div className="error-pagination">
 
                 <button
@@ -718,13 +932,19 @@ function Dashboard() {
                     errorPage === 1
                   }
                 >
-                  ◀️ Previous
+                  ← Previous
                 </button>
 
-                <span>
-                  📄 Page {errorPage} of{" "}
-                  {errorTotalPages}
-                </span>
+                <div>
+                  Page{" "}
+                  <strong>
+                    {errorPage}
+                  </strong>{" "}
+                  of{" "}
+                  <strong>
+                    {errorTotalPages}
+                  </strong>
+                </div>
 
                 <button
                   type="button"
@@ -736,42 +956,69 @@ function Dashboard() {
                     errorTotalPages
                   }
                 >
-                  Next ▶️
+                  Next →
                 </button>
 
               </div>
-
             )}
-
           </>
-
         )}
 
-      </div>
+      </section>
 
       {/* =====================================================
-          ➕ Add Website
+          🔗 QUICK ACTIONS
       ===================================================== */}
 
-      <div>
-        <Link to="/website">
-          <button type="button">
-            Add Website
-          </button>
-        </Link>
-      </div>
+      <section className="quick-actions">
 
-      {/* =====================================================
-          💳 Billing
-      ===================================================== */}
+        <Link
+          to="/website"
+          className="quick-action quick-action-blue"
+        >
+          <span className="quick-action-icon">
+            +
+          </span>
 
-      <div>
-        <Link to="/billing">
-          <button type="button">
-            Billing
-          </button>
+          <span>
+            <strong>
+              Add Website
+            </strong>
+
+            <small>
+              Start monitoring a new website
+            </small>
+          </span>
+
+          <span className="quick-arrow">
+            →
+          </span>
         </Link>
-      </div>
+
+        <Link
+          to="/billing"
+          className="quick-action quick-action-purple"
+        >
+          <span className="quick-action-icon">
+            $
+          </span>
+
+          <span>
+            <strong>
+              Billing
+            </strong>
+
+            <small>
+              Manage your subscription
+            </small>
+          </span>
+
+          <span className="quick-arrow">
+            →
+          </span>
+        </Link>
+
+      </section>
 
     </div>
   );
