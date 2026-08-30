@@ -10,49 +10,44 @@ function Support() {
   const [submitted, setSubmitted] = useState(false);
 
   const handleSubmit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  if (!subject.trim() || !message.trim()) {
-    return;
-  }
+    if (!subject.trim() || !message.trim()) {
+      return;
+    }
 
-  try {
-    await axios.post(
-      "http://localhost:5000/api/support",
-      {
-        subject,
-        message,
-      },
-      {
-        withCredentials: true,
-      }
-    );
+    try {
+      await axios.post(
+        "http://localhost:5000/api/support",
+        {
+          subject,
+          message,
+        },
+        {
+          withCredentials: true,
+        }
+      );
 
-    setSubmitted(true);
-    setSubject("");
-    setMessage("");
-  } catch (error) {
-    console.error("Support ticket error:", error);
-  }
-};
-
+      setSubmitted(true);
+      setSubject("");
+      setMessage("");
+    } catch (error) {
+      console.error("Support ticket error:", error);
+    }
+  };
 
   return (
     <div className="support-page">
-      <h1 className="support-title">Support</h1>
+      <h1 className="support-title">🆘 Support</h1>
 
       <p className="support-description">
         How can we help you?
       </p>
 
       <form className="support-form" onSubmit={handleSubmit}>
-        <input
-          className="support-input"
-          type="email"
-          value={user?.email || ""}
-          placeholder="Customer email"
-          readOnly
-        />
+        <div className="support-input">
+          📧 {user?.email || "Loading customer email..."}
+        </div>
 
         <input
           className="support-input"
@@ -76,12 +71,12 @@ function Support() {
           className="support-button"
           type="submit"
         >
-          Submit Ticket
+          📩 Submit Ticket
         </button>
 
         {submitted && (
           <p className="support-success">
-            Your support ticket has been submitted successfully.
+            ✅ Your support ticket has been submitted successfully.
           </p>
         )}
       </form>
