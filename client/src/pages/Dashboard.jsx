@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
+import Loading from "../components/Loading";
 import "../Dashboard.css";
 
 function Dashboard() {
@@ -21,6 +22,9 @@ function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
+  const [deletingWebsiteId, setDeletingWebsiteId] =
+    useState(null);
+
   const [error, setError] = useState("");
   const [scanMessage, setScanMessage] = useState("");
 
@@ -95,6 +99,12 @@ function Dashboard() {
   // =========================================================
 
   const handleRefresh = async () => {
+    if (loading || scanning || deletingWebsiteId) {
+      return;
+    }
+
+    setScanMessage("");
+
     await fetchDashboard();
   };
 
@@ -175,6 +185,10 @@ function Dashboard() {
   const handleDeleteWebsite = async (
     websiteId
   ) => {
+    if (deletingWebsiteId) {
+      return;
+    }
+
     const website =
       websites.find(
         (currentWebsite) =>
@@ -195,6 +209,7 @@ function Dashboard() {
     }
 
     try {
+      setDeletingWebsiteId(websiteId);
       setError("");
       setScanMessage("");
 
@@ -219,6 +234,8 @@ function Dashboard() {
         err.response?.data?.message ||
           "Failed to delete website"
       );
+    } finally {
+      setDeletingWebsiteId(null);
     }
   };
 
@@ -348,13 +365,22 @@ function Dashboard() {
             className="hero-refresh-button"
             onClick={handleRefresh}
             disabled={
-              loading || scanning
+              loading ||
+              scanning ||
+              deletingWebsiteId !== null
             }
           >
-            <span>↻</span>
-            {loading
-              ? "Refreshing..."
-              : "Refresh"}
+            {loading ? (
+              <Loading
+                size="small"
+                text=""
+              />
+            ) : (
+              <>
+                <span>↻</span>
+                Refresh
+              </>
+            )}
           </button>
 
           <button
@@ -362,13 +388,22 @@ function Dashboard() {
             className="hero-scan-button"
             onClick={handleScanAll}
             disabled={
-              loading || scanning
+              loading ||
+              scanning ||
+              deletingWebsiteId !== null
             }
           >
-            <span>⚡</span>
-            {scanning
-              ? "Scanning..."
-              : "Scan Websites"}
+            {scanning ? (
+              <Loading
+                size="small"
+                text=""
+              />
+            ) : (
+              <>
+                <span>⚡</span>
+                Scan Websites
+              </>
+            )}
           </button>
 
         </div>
@@ -560,8 +595,10 @@ function Dashboard() {
 
         {loading ? (
           <div className="dashboard-loading">
-            <div className="loading-spinner"></div>
-            Loading websites...
+            <Loading
+              size="medium"
+              text="Loading websites..."
+            />
           </div>
         ) : websites.length === 0 ? (
           <div className="dashboard-empty-state">
@@ -645,8 +682,22 @@ function Dashboard() {
                           website.id
                         )
                       }
+                      disabled={
+                        deletingWebsiteId !==
+                          null &&
+                        deletingWebsiteId !==
+                          website.id
+                      }
                     >
-                      Delete
+                      {deletingWebsiteId ===
+                      website.id ? (
+                        <Loading
+                          size="small"
+                          text=""
+                        />
+                      ) : (
+                        "Delete"
+                      )}
                     </button>
 
                   </div>
@@ -766,8 +817,10 @@ function Dashboard() {
 
         {loading ? (
           <div className="dashboard-loading">
-            <div className="loading-spinner"></div>
-            Loading broken URLs...
+            <Loading
+              size="medium"
+              text="Loading broken URLs..."
+            />
           </div>
         ) : errors.length === 0 ? (
           <div className="dashboard-empty-state dashboard-success-empty">
@@ -961,6 +1014,7 @@ function Dashboard() {
 
               </div>
             )}
+
           </>
         )}
 
