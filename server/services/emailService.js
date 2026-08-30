@@ -90,7 +90,58 @@ This alert was sent by 404Watch.
   return data;
 }
 
+async function sendSupportTicketNotification({
+  ticketId,
+  customerEmail,
+  subject,
+  message,
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error("RESEND_API_KEY is not configured");
+  }
+
+  if (!process.env.RESEND_FROM_EMAIL) {
+    throw new Error("RESEND_FROM_EMAIL is not configured");
+  }
+
+  if (!process.env.TEST_EMAIL_TO) {
+    throw new Error("TEST_EMAIL_TO is not configured");
+  }
+
+  const { data, error } = await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL,
+    to: process.env.TEST_EMAIL_TO,
+    subject: `New 404Watch support ticket #${ticketId}`,
+    text: `
+New 404Watch support ticket
+
+Ticket ID:
+#${ticketId}
+
+Customer email:
+${customerEmail}
+
+Subject:
+${subject}
+
+Message:
+${message}
+
+This notification was sent by 404Watch.
+`,
+  });
+
+  if (error) {
+    throw new Error(
+      `Failed to send support ticket notification: ${error.message}`
+    );
+  }
+
+  return data;
+}
+
 module.exports = {
   send404Alert,
   sendRecoveryAlert,
+  sendSupportTicketNotification,
 };

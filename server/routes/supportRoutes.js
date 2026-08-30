@@ -1,6 +1,9 @@
 const express = require("express");
 const prisma = require("../lib/prisma");
 const authMiddleware = require("../middleware/authMiddleware");
+const {
+  sendSupportTicketNotification,
+} = require("../services/emailService");
 
 const router = express.Router();
 
@@ -43,6 +46,21 @@ router.post("/", authMiddleware, async (req, res) => {
         ticketId,
       },
     });
+
+    // Send support-ticket notification email.
+    try {
+      await sendSupportTicketNotification({
+        ticketId: updatedTicket.ticketId,
+        customerEmail: req.user.email,
+        subject: updatedTicket.subject,
+        message: updatedTicket.message,
+      });
+    } catch (emailError) {
+      console.error(
+        "Failed to send support ticket notification email:",
+        emailError
+      );
+    }
 
     res.status(201).json({
       message: "Support ticket created successfully",
