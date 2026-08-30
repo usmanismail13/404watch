@@ -66,11 +66,18 @@ function Navbar() {
               📊 Dashboard
             </NavLink>
 
+            <NavLink to="/errors" onClick={closeMenu}>
+              🚨 404 Errors
+            </NavLink>
+
             <NavLink to="/support" onClick={closeMenu}>
               🆘 Support
             </NavLink>
 
-            <button className="navbar-logout" onClick={handleLogout}>
+            <button
+              className="navbar-logout"
+              onClick={handleLogout}
+            >
               🚪 Logout
             </button>
           </>
