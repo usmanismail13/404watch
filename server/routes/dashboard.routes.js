@@ -17,7 +17,7 @@ router.get("/stats", authMiddleware, async (req, res) => {
     const totalErrors = await prisma.error404.count({
       where: {
         website: {
-          userId: req.user.id,
+          userId: req.user.userId,
         },
       },
     });
@@ -25,7 +25,7 @@ router.get("/stats", authMiddleware, async (req, res) => {
     const activeErrors = await prisma.error404.count({
       where: {
         website: {
-          userId: req.user.id,
+          userId: req.user.userId,
         },
         status: "404",
       },
@@ -34,7 +34,7 @@ router.get("/stats", authMiddleware, async (req, res) => {
     const recoveredErrors = await prisma.error404.count({
       where: {
         website: {
-          userId: req.user.id,
+          userId: req.user.userId,
         },
         recoveredAt: {
           not: null,
@@ -45,7 +45,7 @@ router.get("/stats", authMiddleware, async (req, res) => {
     const lastScan = await prisma.scan.findFirst({
       where: {
         website: {
-          userId: req.user.id,
+          userId: req.user.userId,
         },
         status: "completed",
         completedAt: {
