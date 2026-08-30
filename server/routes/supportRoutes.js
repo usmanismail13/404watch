@@ -20,17 +20,33 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 
   try {
+    // Create the support ticket first so PostgreSQL
+    // gives us its unique numeric ID.
     const ticket = await prisma.supportTicket.create({
       data: {
+        ticketId: "TEMP",
         userId: req.user.userId,
         subject: subject.trim(),
         message: message.trim(),
       },
     });
 
+    // Generate a human-friendly ticket ID.
+    const ticketId = `TKT-${String(ticket.id).padStart(6, "0")}`;
+
+    // Update the ticket with the generated ticket ID.
+    const updatedTicket = await prisma.supportTicket.update({
+      where: {
+        id: ticket.id,
+      },
+      data: {
+        ticketId,
+      },
+    });
+
     res.status(201).json({
       message: "Support ticket created successfully",
-      ticket,
+      ticket: updatedTicket,
     });
   } catch (error) {
     console.error(error);

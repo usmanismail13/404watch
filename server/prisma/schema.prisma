@@ -1,4 +1,3 @@
-```prisma
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -14,7 +13,7 @@ model User {
   password       String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  websites       Website[] 
+  websites       Website[]
   subscription   Subscription?
   supportTickets SupportTicket[]
 
@@ -55,11 +54,11 @@ model Error404 {
 model Scan {
   id          Int       @id @default(autoincrement())
   websiteId   Int
-  website     Website  @relation(fields: [websiteId], references: [id])
+  website     Website   @relation(fields: [websiteId], references: [id])
   status      String
   startedAt   DateTime  @default(now())
   completedAt DateTime?
-  
+
   @@index([websiteId])
   @@index([status])
 }
@@ -77,6 +76,7 @@ model Subscription {
 
 model SupportTicket {
   id        Int      @id @default(autoincrement())
+  ticketId  String   @unique
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   subject   String
@@ -88,4 +88,3 @@ model SupportTicket {
   @@index([userId])
   @@index([status])
 }
-```
