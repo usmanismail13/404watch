@@ -1,0 +1,236 @@
+.pricing-page {
+  min-height: 100vh;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.pricing-page h1 {
+  margin-bottom: 10px;
+}
+
+.pricing-intro {
+  max-width: 600px;
+  margin: 0 auto 40px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.pricing-card,
+.subscription-status {
+  width: 100%;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+  box-sizing: border-box;
+}
+
+.pricing-card {
+  padding: 35px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+}
+
+.pricing-card h2 {
+  margin-bottom: 20px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.price span:first-child {
+  font-size: 42px;
+  font-weight: 700;
+}
+
+.price-period {
+  font-size: 16px;
+  color: #666;
+}
+
+.price-description {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #666;
+}
+
+.pricing-card ul {
+  padding: 0;
+  margin: 0 0 30px;
+  list-style: none;
+  text-align: left;
+}
+
+.pricing-card li {
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.pricing-card li::before {
+  content: "✓";
+  margin-right: 10px;
+  color: #16a34a;
+  font-weight: bold;
+}
+
+.pricing-card button {
+  width: 100%;
+  padding: 13px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.pricing-card button:hover {
+  background: #1d4ed8;
+}
+
+.billing-info {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.billing-info p {
+  margin: 8px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+/* Subscription Status */
+
+.subscription-status {
+  margin-top: 30px;
+  padding: 25px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.subscription-status h2 {
+  margin-bottom: 15px;
+  font-size: 20px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 7px 14px;
+  border-radius: 20px;
+  background: #f3f4f6;
+  color: #555;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.subscription-status p {
+  margin-top: 15px;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Manage Billing */
+
+.manage-billing-button {
+  width: 100%;
+  margin-top: 10px;
+  padding: 12px 20px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #e5e7eb;
+  color: #6b7280;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.billing-coming-soon {
+  display: block;
+  margin-top: 10px;
+  color: #888;
+  font-size: 12px;
+}
+
+/* Tablet */
+
+@media (max-width: 768px) {
+  .pricing-page {
+    padding: 50px 20px;
+  }
+
+  .pricing-intro {
+    margin-bottom: 35px;
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .pricing-page {
+    padding: 40px 15px;
+  }
+
+  .pricing-page h1 {
+    font-size: 30px;
+  }
+
+  .pricing-intro {
+    font-size: 15px;
+    margin-bottom: 30px;
+  }
+
+  .pricing-card {
+    padding: 25px 20px;
+  }
+
+  .price span:first-child {
+    font-size: 36px;
+  }
+
+  .pricing-card li {
+    font-size: 15px;
+  }
+
+  .pricing-card button,
+  .manage-billing-button {
+    padding: 14px 15px;
+  }
+
+  .billing-info p {
+    font-size: 13px;
+  }
+
+  .subscription-status {
+    padding: 20px;
+  }
+}
+
+/* Very Small Phones */
+
+@media (max-width: 360px) {
+  .pricing-page {
+    padding: 30px 10px;
+  }
+
+  .pricing-card {
+    padding: 22px 16px;
+  }
+
+  .price span:first-child {
+    font-size: 32px;
+  }
+
+  .pricing-card li {
+    font-size: 14px;
+  }
+}
