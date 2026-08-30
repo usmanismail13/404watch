@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
+const rateLimit = require("express-rate-limit");
 
 const { send404Alert } = require("./services/emailService");
 
@@ -18,6 +19,16 @@ app.use(
 app.use(express.json());
 
 app.use(cookieParser());
+
+// 🚦 API Rate Limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 100, // 100 requests per IP
+  standardHeaders: "draft-7",
+  legacyHeaders: false,
+});
+
+app.use("/api", apiLimiter);
 
 const authRoutes = require("./routes/authRoutes");
 const websiteRoutes = require("./routes/websiteRoutes");
