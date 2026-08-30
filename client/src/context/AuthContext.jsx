@@ -12,6 +12,10 @@ export function AuthProvider({ children }) {
       const response = await api.get("/api/auth/me");
 
       setUser(response.data.user);
+      console.log(
+        "👤 CURRENT USER:",
+        JSON.stringify(response.data.user, null, 2)
+      );
       setIsAuthenticated(true);
 
       return true;

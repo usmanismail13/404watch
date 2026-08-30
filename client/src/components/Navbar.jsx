@@ -35,6 +35,7 @@ function Navbar() {
         {isAuthenticated === true && (
           <>
             <Link to="/dashboard">Dashboard</Link>
+            <Link to="/support">🆘 Support</Link>
             <button onClick={handleLogout}>Logout</button>
           </>
         )}
