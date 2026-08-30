@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import api from "../api";
+import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import Loading from "../components/Loading.jsx";
 
 function Website() {
   const { id } = useParams();
@@ -127,11 +130,7 @@ function Website() {
       return (
         <div className="website-page">
           <div className="website-container">
-            <div className="website-loading-card">
-              <div className="website-loading-icon">⏳</div>
-              <h2>Loading website...</h2>
-              <p>Please wait while we load your website details.</p>
-            </div>
+            <Loading text="Loading website..." />
           </div>
         </div>
       );
@@ -141,19 +140,20 @@ function Website() {
       return (
         <div className="website-page">
           <div className="website-container">
-            <div className="website-error-card">
-              <div className="website-error-icon">⚠️</div>
-              <h1>Website</h1>
-              <p>{error}</p>
-
-              <button
-                type="button"
-                className="website-secondary-button"
-                onClick={() => navigate("/dashboard")}
-              >
-                ← Back to Dashboard
-              </button>
-            </div>
+            <ErrorState
+              icon="⚠️"
+              title="Unable to Load Website"
+              message={error}
+              action={
+                <button
+                  type="button"
+                  className="website-secondary-button"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  ← Back to Dashboard
+                </button>
+              }
+            />
           </div>
         </div>
       );
@@ -163,21 +163,20 @@ function Website() {
       return (
         <div className="website-page">
           <div className="website-container">
-            <div className="website-error-card">
-              <div className="website-error-icon">🔍</div>
-              <h1>Website Not Found</h1>
-              <p>
-                The website you're looking for could not be found.
-              </p>
-
-              <button
-                type="button"
-                className="website-secondary-button"
-                onClick={() => navigate("/dashboard")}
-              >
-                ← Back to Dashboard
-              </button>
-            </div>
+            <EmptyState
+              icon="🔍"
+              title="Website Not Found"
+              message="The website you're looking for could not be found."
+              action={
+                <button
+                  type="button"
+                  className="website-secondary-button"
+                  onClick={() => navigate("/dashboard")}
+                >
+                  ← Back to Dashboard
+                </button>
+              }
+            />
           </div>
         </div>
       );
@@ -234,7 +233,7 @@ function Website() {
                   }
                 >
                   <span className="website-status-dot">
-                    {website.monitoringEnabled ? "●" : "●"}
+                    ●
                   </span>
 
                   {website.monitoringEnabled
@@ -284,6 +283,7 @@ function Website() {
 
               <div>
                 <strong>Monitoring is paused</strong>
+
                 <p>
                   Enable monitoring before starting a website
                   scan.
@@ -330,11 +330,13 @@ function Website() {
                     404 Errors
                   </span>
 
-                  <strong className={
-                    scanResult.errorsFound > 0
-                      ? "has-errors"
-                      : "no-errors"
-                  }>
+                  <strong
+                    className={
+                      scanResult.errorsFound > 0
+                        ? "has-errors"
+                        : "no-errors"
+                    }
+                  >
                     {scanResult.errorsFound}
                   </strong>
                 </div>
@@ -368,11 +370,15 @@ function Website() {
 
                         <div className="broken-link-field">
                           <span>🔗 Broken URL</span>
-                          <strong>{item.url}</strong>
+
+                          <strong>
+                            {item.url}
+                          </strong>
                         </div>
 
                         <div className="broken-link-field">
                           <span>📄 Source Page</span>
+
                           <strong>
                             {item.sourceUrl}
                           </strong>
@@ -382,35 +388,21 @@ function Website() {
                   </div>
                 </div>
               ) : (
-                <div className="scan-success">
-                  <div className="scan-success-icon">
-                    ✓
-                  </div>
-
-                  <div>
-                    <h3>🎉 No 404 errors found</h3>
-
-                    <p>
-                      Great! Your website currently has no
-                      detected broken links.
-                    </p>
-                  </div>
-                </div>
+                <EmptyState
+                  icon="🎉"
+                  title="No 404 Errors Found"
+                  message="Great! Your website currently has no detected broken links."
+                />
               )}
             </div>
           )}
 
           {!scanResult && (
-            <div className="website-empty-state">
-              <div className="website-empty-icon">🔍</div>
-
-              <h2>Ready to scan?</h2>
-
-              <p>
-                Run a scan to find broken links and HTTP 404
-                errors on this website.
-              </p>
-            </div>
+            <EmptyState
+              icon="🔍"
+              title="Ready to Scan?"
+              message="Run a scan to find broken links and HTTP 404 errors on this website."
+            />
           )}
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../api";
+import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
 import Loading from "../components/Loading";
 import "../Dashboard.css";
 
@@ -327,6 +329,10 @@ function Dashboard() {
       );
     };
 
+  // =========================================================
+  // 🖥️ Render
+  // =========================================================
+
   return (
     <div className="dashboard">
 
@@ -415,10 +421,21 @@ function Dashboard() {
       ===================================================== */}
 
       {error && (
-        <div className="dashboard-alert dashboard-alert-error">
-          <span>⚠️</span>
-          {error}
-        </div>
+        <ErrorState
+          icon="⚠️"
+          title="Dashboard Error"
+          message={error}
+          action={
+            <button
+              type="button"
+              className="primary-action"
+              onClick={fetchDashboard}
+              disabled={loading}
+            >
+              🔄 Try Again
+            </button>
+          }
+        />
       )}
 
       {/* =====================================================
@@ -569,6 +586,7 @@ function Dashboard() {
 
           <div>
             <div className="panel-title-row">
+
               <div className="panel-title-icon">
                 🌐
               </div>
@@ -576,6 +594,7 @@ function Dashboard() {
               <h2>
                 Monitored Websites
               </h2>
+
             </div>
 
             <p>
@@ -601,29 +620,19 @@ function Dashboard() {
             />
           </div>
         ) : websites.length === 0 ? (
-          <div className="dashboard-empty-state">
-
-            <div className="empty-icon">
-              🌐
-            </div>
-
-            <h3>
-              No websites yet
-            </h3>
-
-            <p>
-              Add your first website to start
-              monitoring broken links.
-            </p>
-
-            <Link
-              to="/website"
-              className="primary-action"
-            >
-              + Add Website
-            </Link>
-
-          </div>
+          <EmptyState
+            icon="🌐"
+            title="No Websites Yet"
+            message="Add your first website to start monitoring broken links."
+            action={
+              <Link
+                to="/website"
+                className="primary-action"
+              >
+                ➕ Add Website
+              </Link>
+            }
+          />
         ) : (
           <div className="website-list">
 
@@ -823,39 +832,17 @@ function Dashboard() {
             />
           </div>
         ) : errors.length === 0 ? (
-          <div className="dashboard-empty-state dashboard-success-empty">
-
-            <div className="empty-icon empty-icon-success">
-              ✓
-            </div>
-
-            <h3>
-              Everything looks good
-            </h3>
-
-            <p>
-              No broken URLs have been detected.
-              Your monitored websites are healthy.
-            </p>
-
-          </div>
+          <EmptyState
+            icon="✓"
+            title="Everything Looks Good"
+            message="No broken URLs have been detected. Your monitored websites are healthy."
+          />
         ) : filteredErrors.length === 0 ? (
-          <div className="dashboard-empty-state">
-
-            <div className="empty-icon">
-              🔎
-            </div>
-
-            <h3>
-              No matching errors
-            </h3>
-
-            <p>
-              There are no errors matching
-              the selected filter.
-            </p>
-
-          </div>
+          <EmptyState
+            icon="🔎"
+            title="No Matching Errors"
+            message="There are no errors matching the selected filter."
+          />
         ) : (
           <>
             <div className="error-list">

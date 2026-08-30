@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import api from "../api";
+import EmptyState from "../components/EmptyState";
+import ErrorState from "../components/ErrorState";
+import Loading from "../components/Loading.jsx";
 
 function Errors404() {
   const [errors, setErrors] = useState([]);
@@ -319,53 +322,38 @@ function Errors404() {
         </button>
       </div>
 
-      {/* Error Message */}
-      {error && (
-        <div
-          style={{
-            padding: "14px 16px",
-            marginBottom: "20px",
-            border: "1px solid #fecaca",
-            borderRadius: "8px",
-            backgroundColor: "#fef2f2",
-            color: "#b91c1c",
-          }}
-        >
-          ❌ {error}
-        </div>
-      )}
-
       {/* Content */}
       {loading ? (
-        <div
-          style={{
-            padding: "40px",
-            textAlign: "center",
-            color: "#6b7280",
-          }}
-        >
-          <p>⏳ Loading 404 errors...</p>
-        </div>
+        <Loading text="Loading 404 errors..." />
+      ) : error ? (
+        <ErrorState
+          title="❌ Unable to Load 404 Errors"
+          message={error}
+          action={
+            <button
+              type="button"
+              onClick={fetchErrors}
+              disabled={loading}
+              style={{
+                padding: "10px 16px",
+                border: "none",
+                borderRadius: "8px",
+                backgroundColor: "#111827",
+                color: "#fff",
+                cursor: loading ? "not-allowed" : "pointer",
+                opacity: loading ? 0.7 : 1,
+              }}
+            >
+              🔄 Try Again
+            </button>
+          }
+        />
       ) : filteredErrors.length === 0 ? (
-        <div
-          style={{
-            border: "1px solid #e5e7eb",
-            borderRadius: "12px",
-            padding: "48px 24px",
-            textAlign: "center",
-            backgroundColor: "#fff",
-          }}
-        >
-          {hasFilters ? (
-            <>
-              <div style={{ fontSize: "40px" }}>🔍</div>
-
-              <h2>No Matching Errors</h2>
-
-              <p style={{ color: "#6b7280" }}>
-                No 404 errors match your current search or status filter.
-              </p>
-
+        hasFilters ? (
+          <EmptyState
+            title="No Matching Errors"
+            message="No 404 errors match your current search or status filter."
+            action={
               <button
                 type="button"
                 onClick={clearFilters}
@@ -380,18 +368,13 @@ function Errors404() {
               >
                 🔄 Clear Filters
               </button>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: "40px" }}>🎉</div>
-
-              <h2>No 404 Errors</h2>
-
-              <p style={{ color: "#6b7280" }}>
-                Great news! No broken links have been detected on your
-                website yet.
-              </p>
-
+            }
+          />
+        ) : (
+          <EmptyState
+            title="🎉 No 404 Errors"
+            message="Great news! No broken links have been detected on your website yet."
+            action={
               <button
                 type="button"
                 onClick={fetchErrors}
@@ -406,9 +389,9 @@ function Errors404() {
               >
                 🔄 Check Again
               </button>
-            </>
-          )}
-        </div>
+            }
+          />
+        )
       ) : (
         <div>
           {filteredErrors.map((item) => (

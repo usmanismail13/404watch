@@ -1125,7 +1125,6 @@ button:disabled {
 
 /* =========================================================
    WEBSITE MANAGEMENT
-   Phase 14.8
    ========================================================= */
 
 .website-page {
@@ -1136,10 +1135,6 @@ button:disabled {
 
   padding: 40px 24px 60px;
 }
-
-/* =========================
-   Website Header
-   ========================= */
 
 .website-header {
   display: flex;
@@ -1182,10 +1177,6 @@ button:disabled {
   word-break: break-all;
 }
 
-/* =========================
-   Status Badges
-   ========================= */
-
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -1227,10 +1218,6 @@ button:disabled {
   border: 1px solid #bbf7d0;
 }
 
-/* =========================
-   Website Alerts
-   ========================= */
-
 .website-page .alert {
   margin-bottom: 24px;
 
@@ -1249,10 +1236,6 @@ button:disabled {
 
   border: 1px solid #fecaca;
 }
-
-/* =========================
-   Website Action Cards
-   ========================= */
 
 .website-actions {
   display: grid;
@@ -1306,10 +1289,6 @@ button:disabled {
 
   line-height: 1.6;
 }
-
-/* =========================
-   Website Buttons
-   ========================= */
 
 .primary-button,
 .secondary-button,
@@ -1377,10 +1356,6 @@ button:disabled {
   transform: translateY(-1px);
 }
 
-/* =========================
-   Website Helper Text
-   ========================= */
-
 .website-page .helper-text {
   margin-top: 12px !important;
   margin-bottom: 0 !important;
@@ -1389,10 +1364,6 @@ button:disabled {
 
   font-size: 13px !important;
 }
-
-/* =========================
-   Scan Results
-   ========================= */
 
 .scan-results {
   padding: 28px;
@@ -1423,10 +1394,6 @@ button:disabled {
 
   font-size: 22px;
 }
-
-/* =========================
-   Scan Statistics
-   ========================= */
 
 .scan-stats {
   display: grid;
@@ -1473,10 +1440,6 @@ button:disabled {
 
   font-size: 13px;
 }
-
-/* =========================
-   Broken Links
-   ========================= */
 
 .broken-links h3 {
   margin-bottom: 16px;
@@ -1536,10 +1499,6 @@ button:disabled {
   font-weight: 800;
 }
 
-/* =========================
-   Scan Success
-   ========================= */
-
 .success-message {
   display: flex;
 
@@ -1579,10 +1538,6 @@ button:disabled {
 
   line-height: 1.5;
 }
-
-/* =========================
-   Add Website Form
-   ========================= */
 
 .add-website-card {
   max-width: 700px;
@@ -1642,8 +1597,7 @@ button:disabled {
    Website Loading / Empty
    ========================= */
 
-.loading-state,
-.empty-state {
+.loading-state {
   padding: 60px 24px;
 
   text-align: center;
@@ -1656,25 +1610,176 @@ button:disabled {
 }
 
 .empty-state {
+  width: 100%;
+
+  padding: 40px 24px;
+
+  text-align: center;
+
   background: #ffffff;
 
-  border: 1px solid #e2e8f0;
+  border: 1px solid #e5e7eb;
 
-  border-radius: 16px;
+  border-radius: 12px;
+
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
-.empty-state h1 {
-  margin-bottom: 10px;
+.empty-state-icon {
+  display: flex;
 
-  color: #111827;
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 14px;
+
+  background: #eff6ff;
 
   font-size: 26px;
 }
 
+.empty-state h3 {
+  margin: 0 0 8px;
+
+  color: #111827;
+
+  font-size: 18px;
+
+  line-height: 1.4;
+
+  font-weight: 700;
+}
+
 .empty-state p {
-  margin-bottom: 24px;
+  max-width: 500px;
+
+  margin: 0 auto;
 
   color: #64748b;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.empty-state-action {
+  display: flex;
+
+  justify-content: center;
+
+  margin-top: 20px;
+}
+
+/* =========================
+   Error State
+   ========================= */
+
+.error-state {
+  width: 100%;
+
+  padding: 40px 24px;
+
+  text-align: center;
+
+  background: #fef2f2;
+
+  border: 1px solid #fecaca;
+
+  border-radius: 12px;
+
+  box-shadow: 0 4px 14px rgba(127, 29, 29, 0.05);
+}
+
+.error-state-icon {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 52px;
+  height: 52px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 14px;
+
+  background: #fee2e2;
+
+  font-size: 26px;
+}
+
+.error-state h3 {
+  margin: 0 0 8px;
+
+  color: #991b1b;
+
+  font-size: 18px;
+
+  line-height: 1.4;
+
+  font-weight: 700;
+}
+
+.error-state p {
+  max-width: 500px;
+
+  margin: 0 auto;
+
+  color: #7f1d1d;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+.error-state-button {
+  min-height: 42px;
+
+  margin-top: 20px;
+
+  padding: 0 18px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #b91c1c;
+
+  color: #ffffff;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.error-state-button:hover {
+  background: #991b1b;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 6px 14px rgba(185, 28, 28, 0.2);
+}
+
+.error-state-button:active {
+  transform: translateY(0);
+}
+
+.error-state-button:focus-visible {
+  outline: 3px solid rgba(185, 28, 28, 0.2);
+
+  outline-offset: 2px;
 }
 
 /* =========================
@@ -2658,6 +2763,10 @@ button:disabled {
   line-height: 1.6;
 }
 
+/* =========================
+   Website Responsive
+   ========================= */
+
 @media (max-width: 768px) {
   .website-container {
     padding: 30px 16px 45px;
@@ -2783,4 +2892,73 @@ button:disabled {
     margin: 45px auto;
     padding: 30px 20px;
   }
+}
+
+/* =========================
+   Empty & Error State Responsive
+   ========================= */
+
+@media (max-width: 480px) {
+  .empty-state,
+  .error-state {
+    padding: 32px 18px;
+    border-radius: 10px;
+  }
+
+  .empty-state-icon,
+  .error-state-icon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 14px;
+    border-radius: 12px;
+    font-size: 24px;
+  }
+
+  .empty-state h3,
+  .error-state h3 {
+    font-size: 17px;
+  }
+
+  .empty-state p,
+  .error-state p {
+    font-size: 13px;
+  }
+
+  .error-state-button {
+    width: 100%;
+    max-width: 220px;
+  }
+}
+.error-state-icon {
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #fee2e2;
+  font-size: 26px;
+}
+
+.error-state-button {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.error-state-button:hover {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(220, 38, 38, 0.2);
 }
