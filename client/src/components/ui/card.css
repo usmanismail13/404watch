@@ -1,0 +1,63 @@
+.ui-card {
+  width: 100%;
+
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
+
+  overflow: hidden;
+}
+
+/* 📏 Padding */
+
+.ui-card--small {
+  padding: var(--space-4);
+}
+
+.ui-card--medium {
+  padding: var(--space-6);
+}
+
+.ui-card--large {
+  padding: var(--space-8);
+}
+
+/* 📝 Header */
+
+.ui-card__header {
+  margin-bottom: var(--space-4);
+}
+
+.ui-card__title {
+  color: var(--color-text);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.3;
+}
+
+.ui-card__description {
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+/* 📦 Content */
+
+.ui-card__content {
+  width: 100%;
+}
+
+/* 🦶 Footer */
+
+.ui-card__footer {
+  margin-top: var(--space-6);
+  padding-top: var(--space-4);
+
+  border-top: 1px solid var(--color-border);
+
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}

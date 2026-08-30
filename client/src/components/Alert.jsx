@@ -1,7 +1,42 @@
-function Alert({ message, type = "error" }) {
+import "./alert.css";
+
+function Alert({
+  message,
+  type = "error",
+  title = "",
+  onClose,
+}) {
+  const validTypes = ["success", "warning", "error", "info"];
+
+  const alertType = validTypes.includes(type) ? type : "error";
+
   return (
-    <div className={`alert alert-${type}`}>
-      {message}
+    <div
+      className={`alert alert-${alertType}`}
+      role="alert"
+    >
+      <div className="alert-content">
+        {title && (
+          <strong className="alert-title">
+            {title}
+          </strong>
+        )}
+
+        <p className="alert-message">
+          {message}
+        </p>
+      </div>
+
+      {onClose && (
+        <button
+          type="button"
+          className="alert-close"
+          onClick={onClose}
+          aria-label="Close alert"
+        >
+          ×
+        </button>
+      )}
     </div>
   );
 }

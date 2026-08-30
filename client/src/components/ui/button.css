@@ -1,0 +1,106 @@
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+
+  font-family: var(--font-family);
+  font-weight: var(--font-weight-medium);
+
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+
+  white-space: nowrap;
+}
+
+/* 🔵 Primary */
+
+.ui-button--primary {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-button--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover);
+}
+
+.ui-button--primary:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* ⚪ Secondary */
+
+.ui-button--secondary {
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-button--secondary:hover:not(:disabled) {
+  background-color: var(--color-background);
+}
+
+/* 🔴 Danger */
+
+.ui-button--danger {
+  background-color: var(--color-danger);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-button--danger:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
+.ui-button--danger:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* 📏 Small */
+
+.ui-button--small {
+  min-height: 32px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm);
+}
+
+/* 📏 Medium */
+
+.ui-button--medium {
+  min-height: 40px;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-size-md);
+}
+
+/* 📏 Large */
+
+.ui-button--large {
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  font-size: var(--font-size-lg);
+}
+
+/* 🚫 Disabled */
+
+.ui-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ♿ Keyboard Focus */
+
+.ui-button:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 0.35);
+  outline-offset: 2px;
+}
