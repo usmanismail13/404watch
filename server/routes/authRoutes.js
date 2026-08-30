@@ -4,6 +4,12 @@ const bcrypt = require("bcrypt");
 const prisma = require("../lib/prisma");
 const generateToken = require("../utils/generateToken");
 const authMiddleware = require("../middleware/authMiddleware");
+const { validate } = require("../middleware/validate");
+const {
+  registerSchema,
+  loginSchema,
+  changePasswordSchema,
+} = require("../validators/auth.validator");
 const logAuthError = require("../utils/authError");
 
 const router = express.Router();
@@ -12,6 +18,7 @@ const router = express.Router();
 
 router.post(
   "/register",
+  validate(registerSchema),
   [
     body("email")
       .trim()
@@ -72,6 +79,7 @@ router.post(
 
 router.post(
   "/login",
+  validate(loginSchema),
   [
     body("email")
       .trim()
@@ -183,6 +191,7 @@ router.get("/me", authMiddleware, async (req, res) => {
 router.post(
   "/change-password",
   authMiddleware,
+  validate(changePasswordSchema),
   [
     body("currentPassword")
       .isString()

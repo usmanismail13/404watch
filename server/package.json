@@ -28,7 +28,8 @@
     "pg-hstore": "^2.3.4",
     "prisma": "^7.9.1",
     "resend": "^6.25.0",
-    "sequelize": "^6.37.8"
+    "sequelize": "^6.37.8",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@types/node": "^26.2.0",
