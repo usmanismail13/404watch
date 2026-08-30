@@ -73,6 +73,10 @@ function Navbar() {
             <NavLink to="/support" onClick={closeMenu}>
               🆘 Support
             </NavLink>
+            <NavLink to="/account" onClick={closeMenu}>
+  👤 Account
+</NavLink>
+
 
             <button
               className="navbar-logout"

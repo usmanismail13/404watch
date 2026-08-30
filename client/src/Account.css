@@ -1,0 +1,247 @@
+.account-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.account-header {
+  margin-bottom: 32px;
+}
+
+.account-eyebrow {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.account-header h1 {
+  margin: 0 0 8px;
+  font-size: 32px;
+  line-height: 1.2;
+  color: #111827;
+}
+
+.account-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 16px;
+}
+
+.account-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.account-card:hover {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07);
+}
+
+.account-card-header {
+  margin-bottom: 20px;
+}
+
+.account-card h2 {
+  margin: 0 0 6px;
+  font-size: 20px;
+  color: #111827;
+}
+
+.account-card p {
+  margin: 0;
+  color: #6b7280;
+  line-height: 1.5;
+}
+
+.account-info {
+  padding: 16px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 10px;
+}
+
+.account-info-label {
+  display: block;
+  margin-bottom: 5px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.account-info strong {
+  color: #111827;
+  font-size: 15px;
+}
+
+.account-card button {
+  border: none;
+  border-radius: 8px;
+  padding: 11px 16px;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.1s ease;
+}
+
+.account-card button:hover {
+  background: #1d4ed8;
+}
+
+.account-card button:active {
+  transform: translateY(1px);
+}
+
+.account-card button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.account-form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.account-form-group label {
+  margin-bottom: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.account-form-group input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 11px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font-size: 15px;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.account-form-group input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.account-form-group small {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.account-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.account-cancel-button {
+  background: #6b7280 !important;
+}
+
+.account-cancel-button:hover {
+  background: #4b5563 !important;
+}
+
+.account-billing-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  border-radius: 10px;
+}
+
+.account-billing-action strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #111827;
+  font-size: 15px;
+}
+
+.account-billing-action span {
+  display: block;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.account-billing-action a {
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.account-success,
+.account-error {
+  padding: 13px 16px;
+  border-radius: 9px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.account-success {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.account-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+@media (max-width: 600px) {
+  .account-page {
+    padding: 24px 16px;
+  }
+
+  .account-header h1 {
+    font-size: 26px;
+  }
+
+  .account-card {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .account-billing-action {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .account-billing-action a {
+    width: 100%;
+  }
+
+  .account-billing-action button {
+    width: 100%;
+  }
+
+  .account-form-actions {
+    flex-direction: column;
+  }
+
+  .account-form-actions button {
+    width: 100%;
+  }
+}
