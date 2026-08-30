@@ -32,6 +32,7 @@ router.post("/", authMiddleware, async (req, res) => {
         userId: req.user.userId,
         subject: subject.trim(),
         message: message.trim(),
+        status: "open",
       },
     });
 
