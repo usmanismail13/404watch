@@ -74,4 +74,44 @@ router.patch("/:ticketId/pending", authMiddleware, async (req, res) => {
   }
 });
 
+router.patch("/:ticketId/resolved", authMiddleware, async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+
+    const ticket = await prisma.supportTicket.findUnique({
+      where: {
+        ticketId,
+      },
+    });
+
+    if (!ticket) {
+      return res.status(404).json({
+        message: "Support ticket not found",
+      });
+    }
+
+    const updatedTicket = await prisma.supportTicket.update({
+      where: {
+        ticketId,
+      },
+      data: {
+        status: "resolved",
+      },
+    });
+
+    console.log(`✅ Ticket ${ticketId} marked as resolved`);
+
+    res.status(200).json({
+      message: "Support ticket marked as resolved",
+      ticket: updatedTicket,
+    });
+  } catch (error) {
+    console.error("❌ Failed to mark ticket as resolved:", error);
+
+    res.status(500).json({
+      message: "Failed to update support ticket",
+    });
+  }
+});
+
 module.exports = router;

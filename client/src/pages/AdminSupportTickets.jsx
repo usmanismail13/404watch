@@ -77,6 +77,45 @@ function AdminSupportTickets() {
     }
   }
 
+  async function markAsResolved(ticketId) {
+    try {
+      setUpdatingTicketId(ticketId);
+
+      const response = await fetch(
+        `http://localhost:5000/api/admin/support-tickets/${ticketId}/resolved`,
+        {
+          method: "PATCH",
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to resolve ticket");
+      }
+
+      setTickets((currentTickets) =>
+        currentTickets.map((ticket) =>
+          ticket.ticketId === ticketId
+            ? { ...ticket, status: "resolved" }
+            : ticket
+        )
+      );
+
+      setSelectedTicket((currentTicket) =>
+        currentTicket && currentTicket.ticketId === ticketId
+          ? { ...currentTicket, status: "resolved" }
+          : currentTicket
+      );
+    } catch (err) {
+      console.error("Failed to resolve ticket:", err);
+      setError("Failed to resolve ticket.");
+    } finally {
+      setUpdatingTicketId(null);
+    }
+  }
+
   if (loading) {
     return <div>⏳ Loading support tickets...</div>;
   }
@@ -161,6 +200,18 @@ function AdminSupportTickets() {
                           : "🟡 Mark Pending"}
                       </button>
                     )}
+
+                    {ticket.status === "pending" && (
+                      <button
+                        type="button"
+                        onClick={() => markAsResolved(ticket.ticketId)}
+                        disabled={updatingTicketId === ticket.ticketId}
+                      >
+                        {updatingTicketId === ticket.ticketId
+                          ? "⏳ Updating..."
+                          : "✅ Mark Resolved"}
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -212,11 +263,27 @@ function AdminSupportTickets() {
             <button
               type="button"
               onClick={() => markAsPending(selectedTicket.ticketId)}
-              disabled={updatingTicketId === selectedTicket.ticketId}
+              disabled={
+                updatingTicketId === selectedTicket.ticketId
+              }
             >
               {updatingTicketId === selectedTicket.ticketId
                 ? "⏳ Updating..."
                 : "🟡 Mark Pending"}
+            </button>
+          )}
+
+          {selectedTicket.status === "pending" && (
+            <button
+              type="button"
+              onClick={() => markAsResolved(selectedTicket.ticketId)}
+              disabled={
+                updatingTicketId === selectedTicket.ticketId
+              }
+            >
+              {updatingTicketId === selectedTicket.ticketId
+                ? "⏳ Updating..."
+                : "✅ Mark Resolved"}
             </button>
           )}
 
