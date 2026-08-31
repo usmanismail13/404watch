@@ -6,6 +6,7 @@ const {
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
+const MAX_REDIRECTS = 5;
 
 function sleep(ms) {
   return new Promise((resolve) => {
@@ -13,13 +14,19 @@ function sleep(ms) {
   });
 }
 
-async function fetchUrl(url) {
+async function fetchUrl(url, redirectCount = 0) {
   // 🔒 SSRF protection
   const safe = await isSafeUrlResolved(url);
 
   if (!safe) {
     throw new Error(
       `Blocked unsafe URL: ${url}`
+    );
+  }
+
+  if (redirectCount > MAX_REDIRECTS) {
+    throw new Error(
+      `Too many redirects: ${url}`
     );
   }
 
@@ -32,6 +39,43 @@ async function fetchUrl(url) {
         maxRedirects: 0,
         validateStatus: () => true,
       });
+
+      // 🔗 Handle HTTP redirects manually
+      if (
+        response.status >= 300 &&
+        response.status < 400
+      ) {
+        const location = response.headers.location;
+
+        if (!location) {
+          return {
+            url,
+            statusCode: response.status,
+            html: response.data,
+            headers: response.headers,
+          };
+        }
+
+        const redirectUrl = new URL(
+          location,
+          url
+        ).toString();
+
+        // 🔒 Validate redirect destination
+        const redirectSafe =
+          await isSafeUrlResolved(redirectUrl);
+
+        if (!redirectSafe) {
+          throw new Error(
+            `Blocked unsafe redirect: ${redirectUrl}`
+          );
+        }
+
+        return fetchUrl(
+          redirectUrl,
+          redirectCount + 1
+        );
+      }
 
       return {
         url,
