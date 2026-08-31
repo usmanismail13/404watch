@@ -5,8 +5,9 @@ const authMiddleware = require("../middleware/authMiddleware");
 const router = express.Router();
 
 router.get("/", authMiddleware, async (req, res) => {
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 10;
+  const page = Math.max(1, Number(req.query.page) || 1);
+const limit = Math.min(100, Math.max(1, Number(req.query.limit) || 10));
+
   const offset = (page - 1) * limit;
 
   try {
