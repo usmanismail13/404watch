@@ -19,10 +19,9 @@ app.use(
   })
 );
 
-
 // 🌐 Allowed frontend origins
 const allowedOrigins = [
-  "http://localhost:5173",
+  process.env.FRONTEND_URL || "http://localhost:5173",
 ];
 
 // 🌐 CORS protection
