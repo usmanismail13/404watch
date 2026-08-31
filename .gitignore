@@ -6,3 +6,6 @@ build
 server/.agents/
 server/.claude/
 server/.windsurf/
+
+.env.*
+!.env.example
