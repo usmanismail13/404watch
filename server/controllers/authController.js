@@ -30,7 +30,7 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Registration error:", error.message);
 
     res.status(500).json({
       message: "Failed to create user",
@@ -88,7 +88,7 @@ const login = async (req, res) => {
         },
       });
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error.message);
 
     res.status(500).json({
       message: "Failed to login",
@@ -109,7 +109,7 @@ const logout = async (req, res) => {
         message: "Logout successful",
       });
   } catch (error) {
-    console.error(error);
+    console.error("Logout error:", error.message);
 
     res.status(500).json({
       message: "Failed to logout",

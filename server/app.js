@@ -168,7 +168,7 @@ app.get("/api/test/404-email", async (req, res) => {
       message: "Test 404 email sent",
     });
   } catch (error) {
-    console.error("Test 404 email failed:", error);
+    console.error("Test 404 email failed:", error.message);
 
     res.status(500).json({
       success: false,
@@ -181,7 +181,7 @@ app.get("/api/test/404-email", async (req, res) => {
 
 // ❌ Global error handler
 app.use((err, req, res, next) => {
-  console.error("Unhandled server error:", err);
+  console.error("Unhandled server error:", err.message);
 
   res.status(500).json({
     success: false,
