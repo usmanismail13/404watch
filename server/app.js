@@ -13,7 +13,12 @@ const app = express();
 // ==================== SECURITY ====================
 
 // 🛡️ Security headers
-app.use(helmet());
+app.use(
+  helmet({
+    hsts: process.env.NODE_ENV === "production",
+  })
+);
+
 
 // 🌐 Allowed frontend origins
 const allowedOrigins = [
