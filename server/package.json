@@ -37,5 +37,8 @@
   "devDependencies": {
     "@types/node": "^26.2.0",
     "tsx": "^4.23.12"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.2"
   }
 }
