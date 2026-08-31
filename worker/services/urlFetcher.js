@@ -1,5 +1,9 @@
 const axios = require("axios");
 
+const {
+  isSafeUrlResolved,
+} = require("./urlSafety");
+
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 1000;
 
@@ -10,13 +14,22 @@ function sleep(ms) {
 }
 
 async function fetchUrl(url) {
+  // 🔒 SSRF protection
+  const safe = await isSafeUrlResolved(url);
+
+  if (!safe) {
+    throw new Error(
+      `Blocked unsafe URL: ${url}`
+    );
+  }
+
   let lastError;
 
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     try {
       const response = await axios.get(url, {
         timeout: 10000,
-        maxRedirects: 5,
+        maxRedirects: 0,
         validateStatus: () => true,
       });
 
