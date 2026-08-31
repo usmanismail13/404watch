@@ -7,6 +7,9 @@ const {
 
 const MAX_CONCURRENT_REQUESTS =
   Number(process.env.CRAWLER_CONCURRENCY) || 5;
+const MAX_CRAWL_URLS =
+  Number(process.env.MAX_CRAWL_URLS) || 1000;
+
 
 function createCrawler(startUrl, websiteId, prisma) {
   const visitedUrls = new Set();
@@ -63,6 +66,14 @@ function createCrawler(startUrl, websiteId, prisma) {
 
   function enqueueUrl(url) {
     const normalizedUrl = normalizeUrl(url);
+if (visitedUrls.size + crawlerQueue.length >= MAX_CRAWL_URLS) {
+  console.log(
+    `Crawler URL limit reached (${MAX_CRAWL_URLS}). Skipping: ${normalizedUrl}`
+  );
+
+  return false;
+}
+
 
     if (!normalizedUrl) {
       return false;
