@@ -14,11 +14,33 @@ const logAuthError = require("../utils/authError");
 
 const router = express.Router();
 
+// ==================== VALIDATION HELPER ====================
+
+const validateExpress = (req, res, next) => {
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: errors.array().map((error) => ({
+        field: error.path,
+        message: error.msg,
+      })),
+    });
+  }
+
+  next();
+};
+
 // ==================== REGISTER ====================
 
 router.post(
   "/register",
+
+  // 🧹 Schema validation
   validate(registerSchema),
+
+  // 🛡️ Additional input validation
   [
     body("email")
       .trim()
@@ -30,21 +52,19 @@ router.post(
       .isString()
       .isLength({ min: 8, max: 128 })
       .withMessage("Password must be between 8 and 128 characters long"),
+
+    validateExpress,
   ],
+
   async (req, res) => {
     const { email, password } = req.body;
 
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-      });
-    }
-
     try {
+      // 🔐 Hash password before database storage
       const hashedPassword = await bcrypt.hash(password, 10);
 
+      // 🗄️ Prisma uses parameterized queries internally,
+      // protecting this database operation against SQL injection.
       const user = await prisma.user.create({
         data: {
           email,
@@ -79,7 +99,11 @@ router.post(
 
 router.post(
   "/login",
+
+  // 🧹 Schema validation
   validate(loginSchema),
+
+  // 🛡️ Additional input validation
   [
     body("email")
       .trim()
@@ -91,19 +115,15 @@ router.post(
       .isString()
       .isLength({ min: 1, max: 128 })
       .withMessage("Invalid password"),
+
+    validateExpress,
   ],
+
   async (req, res) => {
     const { email, password } = req.body;
 
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-      });
-    }
-
     try {
+      // 🔎 Prisma parameterizes this query.
       const user = await prisma.user.findUnique({
         where: {
           email,
@@ -116,6 +136,7 @@ router.post(
         });
       }
 
+      // 🔑 Compare password against stored hash
       const passwordMatches = await bcrypt.compare(
         password,
         user.password
@@ -127,8 +148,10 @@ router.post(
         });
       }
 
+      // 🎫 Generate authentication token
       const token = generateToken(user.id, user.email);
 
+      // 🍪 Store token securely in HTTP-only cookie
       return res
         .status(200)
         .cookie("token", token, {
@@ -190,8 +213,14 @@ router.get("/me", authMiddleware, async (req, res) => {
 
 router.post(
   "/change-password",
+
+  // 🔐 Authentication first
   authMiddleware,
+
+  // 🧹 Schema validation
   validate(changePasswordSchema),
+
+  // 🛡️ Additional input validation
   [
     body("currentPassword")
       .isString()
@@ -201,20 +230,13 @@ router.post(
     body("newPassword")
       .isString()
       .isLength({ min: 8, max: 128 })
-      .withMessage(
-        "New password must be between 8 and 128 characters long"
-      ),
+      .withMessage("New password must be between 8 and 128 characters long"),
+
+    validateExpress,
   ],
+
   async (req, res) => {
     const { currentPassword, newPassword } = req.body;
-
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return res.status(400).json({
-        message: "Validation failed",
-      });
-    }
 
     if (currentPassword === newPassword) {
       return res.status(400).json({
@@ -235,6 +257,7 @@ router.post(
         });
       }
 
+      // 🔑 Verify current password
       const passwordMatches = await bcrypt.compare(
         currentPassword,
         user.password
@@ -246,8 +269,10 @@ router.post(
         });
       }
 
+      // 🔐 Hash new password
       const hashedPassword = await bcrypt.hash(newPassword, 10);
 
+      // 🗄️ Prisma parameterizes this update.
       await prisma.user.update({
         where: {
           id: user.id,
