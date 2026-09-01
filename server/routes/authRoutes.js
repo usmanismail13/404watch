@@ -189,10 +189,16 @@ router.get("/me", authMiddleware, async (req, res) => {
         id: true,
         email: true,
 
-        // 💳 Get subscription status
+        // 💳 Get subscription information
         subscription: {
           select: {
             status: true,
+
+            // 📅 Subscription start date
+            startDate: true,
+
+            // ⏳ Subscription expiration date
+            expirationDate: true,
           },
         },
       },

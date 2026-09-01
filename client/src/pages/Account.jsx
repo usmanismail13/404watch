@@ -60,6 +60,19 @@ function Account() {
     }
   };
 
+  // 📅 Format subscription dates
+  const formatDate = (date) => {
+    if (!date) {
+      return "Not available";
+    }
+
+    return new Date(date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
     <main
       className="account-page"
@@ -345,6 +358,32 @@ function Account() {
 
             <strong>
               🌐 TRON (TRC-20)
+            </strong>
+          </div>
+
+          {/* 📅 Subscription Start Date */}
+
+          <div>
+            <span className="account-info-label">
+              Subscription start date
+            </span>
+
+            <strong>
+              📅{" "}
+              {formatDate(user?.subscription?.startDate)}
+            </strong>
+          </div>
+
+          {/* ⏳ Subscription Expiration Date */}
+
+          <div>
+            <span className="account-info-label">
+              Subscription expiration date
+            </span>
+
+            <strong>
+              ⏳{" "}
+              {formatDate(user?.subscription?.expirationDate)}
             </strong>
           </div>
         </div>
