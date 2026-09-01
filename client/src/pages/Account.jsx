@@ -77,6 +77,8 @@ function Account() {
         </p>
       </div>
 
+      {/* ==================== SUCCESS MESSAGE ==================== */}
+
       {message && (
         <div
           className="account-success"
@@ -87,6 +89,8 @@ function Account() {
           {message}
         </div>
       )}
+
+      {/* ==================== ERROR MESSAGE ==================== */}
 
       {error && (
         <div
@@ -99,13 +103,17 @@ function Account() {
         </div>
       )}
 
+      {/* ==================== PROFILE ==================== */}
+
       <section
         className="account-card"
         aria-labelledby="profile-title"
       >
         <div className="account-card-header">
           <div>
-            <h2 id="profile-title">👤 Profile</h2>
+            <h2 id="profile-title">
+              👤 Profile
+            </h2>
 
             <p>
               Manage your account information.
@@ -126,13 +134,17 @@ function Account() {
         </div>
       </section>
 
+      {/* ==================== SECURITY ==================== */}
+
       <section
         className="account-card"
         aria-labelledby="security-title"
       >
         <div className="account-card-header">
           <div>
-            <h2 id="security-title">🔐 Security</h2>
+            <h2 id="security-title">
+              🔐 Security
+            </h2>
 
             <p>
               Keep your account secure by managing your password.
@@ -274,13 +286,17 @@ function Account() {
         )}
       </section>
 
+      {/* ==================== BILLING ==================== */}
+
       <section
         className="account-card"
         aria-labelledby="billing-title"
       >
         <div className="account-card-header">
           <div>
-            <h2 id="billing-title">💳 Billing</h2>
+            <h2 id="billing-title">
+              💳 Billing
+            </h2>
 
             <p>
               Manage your subscription and billing information.
@@ -288,9 +304,38 @@ function Account() {
           </div>
         </div>
 
+        {/* 💳 Subscription Information */}
+
+        <div className="account-info">
+          <div>
+            <span className="account-info-label">
+              Subscription status
+            </span>
+
+            <strong>
+              {user?.subscription?.status ||
+                "No active subscription"}
+            </strong>
+          </div>
+
+          <div>
+            <span className="account-info-label">
+              Subscription price
+            </span>
+
+            <strong>
+              $10/month
+            </strong>
+          </div>
+        </div>
+
+        {/* 🔗 Billing Page */}
+
         <div className="account-billing-action">
           <div>
-            <strong>Subscription & Billing</strong>
+            <strong>
+              Subscription & Billing
+            </strong>
 
             <span>
               View your plan, payment details, and billing options.

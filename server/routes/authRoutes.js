@@ -188,6 +188,13 @@ router.get("/me", authMiddleware, async (req, res) => {
       select: {
         id: true,
         email: true,
+
+        // 💳 Get subscription status
+        subscription: {
+          select: {
+            status: true,
+          },
+        },
       },
     });
 
