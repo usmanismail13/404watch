@@ -120,6 +120,9 @@ const supportRoutes = require("./routes/supportRoutes");
 // 👨‍💼 Admin support-ticket routes
 const adminSupportTicketsRoutes = require("./routes/admin/supportTickets");
 
+// 💳 Payment routes
+const paymentRoutes = require("./routes/paymentRoutes");
+
 // 🛣️ API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/websites", websiteRoutes);
@@ -128,6 +131,7 @@ app.use("/api/scans", scanRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/support", supportRoutes);
 app.use("/api/admin/support-tickets", adminSupportTicketsRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // ==================== HEALTH CHECK ====================
 
