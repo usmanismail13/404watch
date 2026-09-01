@@ -115,6 +115,13 @@ function Navbar() {
           💰 Pricing
         </NavLink>
 
+        <NavLink
+          to="/payment"
+          onClick={closeMenu}
+        >
+          💳 Payment
+        </NavLink>
+
         {isAuthenticated === false && (
           <>
             <NavLink
