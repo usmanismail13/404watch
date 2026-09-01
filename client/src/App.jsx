@@ -45,7 +45,7 @@ function App() {
 
             <Route path="/errors" element={<Errors404 />} />
             <Route path="/account" element={<Account />} />
-            <Route path="/billing" element={<Billing />} />
+ <Route path="/billing" element={<Billing />} />
             <Route path="/payment" element={<Payment />} />
             <Route path="/support" element={<Support />} />
 
