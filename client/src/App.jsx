@@ -13,6 +13,7 @@ import Website from "./pages/Website";
 import Errors404 from "./pages/Errors404";
 import Account from "./pages/Account";
 import Billing from "./pages/Billing";
+import Payment from "./pages/Payment";
 import Support from "./pages/Support";
 import AdminSupportTickets from "./pages/AdminSupportTickets";
 
@@ -45,6 +46,7 @@ function App() {
             <Route path="/errors" element={<Errors404 />} />
             <Route path="/account" element={<Account />} />
             <Route path="/billing" element={<Billing />} />
+            <Route path="/payment" element={<Payment />} />
             <Route path="/support" element={<Support />} />
 
             <Route
