@@ -53,7 +53,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 3️⃣ Make sure our configured payment settings are correct
+    // 3️⃣ Validate payment configuration
     if (
       process.env.PAYMENT_TOKEN !== "USDT" ||
       process.env.PAYMENT_NETWORK !== "TRON" ||
@@ -77,7 +77,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 5️⃣ Check that the transaction succeeded
+    // 5️⃣ Check transaction execution status
     const transactionResult =
       transaction.ret?.[0]?.contractRet;
 
@@ -88,7 +88,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 6️⃣ Get the transaction receipt/info
+    // 6️⃣ Get transaction receipt/info
     const transactionInfo =
       await tronWeb.trx.getTransactionInfo(transactionHash);
 
@@ -99,7 +99,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 7️⃣ Check that the transaction itself succeeded
+    // 7️⃣ Check receipt status
     if (transactionInfo.receipt.result !== "SUCCESS") {
       return res.status(400).json({
         success: false,
@@ -107,7 +107,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 8️⃣ Make sure this is a TRC-20 contract call
+    // 8️⃣ Make sure this is a contract transaction
     const contract =
       transaction.raw_data?.contract?.[0];
 
@@ -118,7 +118,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 9️⃣ Decode the contract parameters
+    // 9️⃣ Get contract parameters
     const contractData =
       contract.parameter?.value;
 
@@ -129,7 +129,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 🔟 Verify the transaction is calling the USDT contract
+    // 🔟 Verify the USDT contract address
     const contractAddress =
       contractData.contract_address;
 
@@ -153,7 +153,7 @@ const submitPayment = async (req, res) => {
       });
     }
 
-    // 1️⃣1️⃣ Decode the USDT transfer
+    // 1️⃣1️⃣ Decode the USDT transfer data
     const data = contractData.data;
 
     if (!data || data.length < 136) {
@@ -164,7 +164,8 @@ const submitPayment = async (req, res) => {
     }
 
     // transfer(address,uint256)
-    const recipientHex = "41" + data.slice(8, 72);
+    const recipientHex =
+      "41" + data.slice(8, 72);
 
     const recipientAddress =
       tronWeb.address.fromHex(recipientHex);
@@ -188,16 +189,17 @@ const submitPayment = async (req, res) => {
     }
 
     // 1️⃣3️⃣ Decode the USDT amount
-    const amountHex = data.slice(72, 136);
+    const amountHex =
+      data.slice(72, 136);
 
     const amountInSmallestUnit =
       BigInt("0x" + amountHex);
 
-    // USDT TRC-20 uses 6 decimals
+    // 🪙 USDT TRC-20 uses 6 decimals
     const amountUSDT =
       Number(amountInSmallestUnit) / 1_000_000;
 
-    // 1️⃣4️⃣ Check the required payment amount
+    // 1️⃣4️⃣ Check required payment amount
     const requiredAmount = Number(
       process.env.SUBSCRIPTION_PRICE_USD || "10"
     );
@@ -211,14 +213,15 @@ const submitPayment = async (req, res) => {
     }
 
     // 1️⃣5️⃣ Save verified payment
+    // 🔐 JWT contains userId, not id
     const payment = await prisma.payment.create({
       data: {
-        userId: req.user.id,
+        userId: req.user.userId,
         amount: amountUSDT,
         token: "USDT",
         network: "TRON",
         walletAddress: configuredWallet,
-        transactionHash: transactionHash,
+        transactionHash,
         status: "confirmed",
         paidAt: new Date(),
       },
@@ -250,6 +253,47 @@ const submitPayment = async (req, res) => {
   }
 };
 
+// ==================== PAYMENT HISTORY ====================
+
+const getPaymentHistory = async (req, res) => {
+  try {
+    const payments = await prisma.payment.findMany({
+      where: {
+        userId: req.user.userId,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        amount: true,
+        token: true,
+        network: true,
+        transactionHash: true,
+        status: true,
+        paidAt: true,
+        createdAt: true,
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      payments,
+    });
+  } catch (error) {
+    console.error(
+      "Payment history error:",
+      error.message
+    );
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load payment history.",
+    });
+  }
+};
+
 module.exports = {
   submitPayment,
+  getPaymentHistory,
 };

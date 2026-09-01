@@ -1,8 +1,16 @@
 const express = require("express");
-const { submitPayment } = require("../controllers/paymentController");
+const {
+  submitPayment,
+  getPaymentHistory,
+} = require("../controllers/paymentController");
+const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post("/submit", submitPayment);
+// 💳 Submit and verify a payment
+router.post("/submit", authMiddleware, submitPayment);
+
+// 🧾 Get logged-in user's payment history
+router.get("/history", authMiddleware, getPaymentHistory);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import api from "../api";
@@ -11,9 +11,41 @@ function Account() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // 💳 Payment history
+  const [payments, setPayments] = useState([]);
+  const [paymentsLoading, setPaymentsLoading] = useState(true);
+  const [paymentsError, setPaymentsError] = useState("");
+
+  // ==================== LOAD PAYMENT HISTORY ====================
+
+  useEffect(() => {
+    const loadPaymentHistory = async () => {
+      try {
+        setPaymentsLoading(true);
+        setPaymentsError("");
+
+        const response = await api.get("/api/payments/history");
+
+        setPayments(response.data.payments || []);
+      } catch (error) {
+        setPaymentsError(
+          error.response?.data?.message ||
+            "Failed to load payment history."
+        );
+      } finally {
+        setPaymentsLoading(false);
+      }
+    };
+
+    loadPaymentHistory();
+  }, []);
+
+  // ==================== CHANGE PASSWORD ====================
 
   const handleChangePassword = async (event) => {
     event.preventDefault();
@@ -60,17 +92,14 @@ function Account() {
     }
   };
 
-  // 📅 Format subscription dates
+  // ==================== FORMAT DATE ====================
+
   const formatDate = (date) => {
     if (!date) {
-      return "Not available";
+      return "—";
     }
 
-    return new Date(date).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    return new Date(date).toLocaleString();
   };
 
   return (
@@ -317,8 +346,6 @@ function Account() {
           </div>
         </div>
 
-        {/* 💳 Subscription Information */}
-
         <div className="account-info">
           <div>
             <span className="account-info-label">
@@ -360,35 +387,7 @@ function Account() {
               🌐 TRON (TRC-20)
             </strong>
           </div>
-
-          {/* 📅 Subscription Start Date */}
-
-          <div>
-            <span className="account-info-label">
-              Subscription start date
-            </span>
-
-            <strong>
-              📅{" "}
-              {formatDate(user?.subscription?.startDate)}
-            </strong>
-          </div>
-
-          {/* ⏳ Subscription Expiration Date */}
-
-          <div>
-            <span className="account-info-label">
-              Subscription expiration date
-            </span>
-
-            <strong>
-              ⏳{" "}
-              {formatDate(user?.subscription?.expirationDate)}
-            </strong>
-          </div>
         </div>
-
-        {/* 🔗 Billing Page */}
 
         <div className="account-billing-action">
           <div>
@@ -407,6 +406,109 @@ function Account() {
             </button>
           </Link>
         </div>
+      </section>
+
+      {/* ==================== PAYMENT HISTORY ==================== */}
+
+      <section
+        className="account-card"
+        aria-labelledby="payment-history-title"
+      >
+        <div className="account-card-header">
+          <div>
+            <h2 id="payment-history-title">
+              🧾 Payment History
+            </h2>
+
+            <p>
+              View your previous cryptocurrency payments and transaction hashes.
+            </p>
+          </div>
+        </div>
+
+        {paymentsLoading ? (
+          <div
+            className="account-loading"
+            role="status"
+            aria-live="polite"
+          >
+            ⏳ Loading payment history...
+          </div>
+        ) : paymentsError ? (
+          <div
+            className="account-error"
+            role="alert"
+          >
+            ❌ {paymentsError}
+          </div>
+        ) : payments.length === 0 ? (
+          <div className="account-empty">
+            🧾 No payments found.
+          </div>
+        ) : (
+          <div className="payment-history">
+            {payments.map((payment) => (
+              <article
+                className="payment-history-item"
+                key={payment.id}
+              >
+                <div className="account-info">
+                  <div>
+                    <span className="account-info-label">
+                      Amount
+                    </span>
+
+                    <strong>
+                      💰 {payment.amount} {payment.token}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="account-info-label">
+                      Network
+                    </span>
+
+                    <strong>
+                      🌐 {payment.network}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="account-info-label">
+                      Status
+                    </span>
+
+                    <strong>
+                      {payment.status === "confirmed"
+                        ? "✅ Confirmed"
+                        : payment.status}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="account-info-label">
+                      Payment date
+                    </span>
+
+                    <strong>
+                      📅 {formatDate(payment.paidAt || payment.createdAt)}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="account-info-label">
+                      Transaction hash
+                    </span>
+
+                    <code>
+                      🔗 {payment.transactionHash}
+                    </code>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
