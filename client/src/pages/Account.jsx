@@ -327,6 +327,26 @@ function Account() {
               $10/month
             </strong>
           </div>
+
+          <div>
+            <span className="account-info-label">
+              Accepted cryptocurrency
+            </span>
+
+            <strong>
+              🪙 USDT
+            </strong>
+          </div>
+
+          <div>
+            <span className="account-info-label">
+              Payment network
+            </span>
+
+            <strong>
+              🌐 TRON (TRC-20)
+            </strong>
+          </div>
         </div>
 
         {/* 🔗 Billing Page */}
