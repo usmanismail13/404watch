@@ -1,10 +1,5 @@
-require("dotenv").config();
+const { PrismaClient } = require("@prisma/client");
 
-const { Sequelize } = require("sequelize");
+const prisma = new PrismaClient();
 
-const sequelize = new Sequelize(process.env.DATABASE_URL, {
-  dialect: "postgres",
-  logging: false,
-});
-
-module.exports = sequelize;
+module.exports = prisma;
